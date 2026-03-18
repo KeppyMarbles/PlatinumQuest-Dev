@@ -1,0 +1,316 @@
+// -----------------Sounds-----------------
+
+datablock AudioProfile(selectSfx) {
+	filename = "~/data/sound/custom/archSelect.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+//datablock AudioProfile(deselectSfx) {
+//	filename	= "~/data/sound/custom/archDeselect.wav";
+//	description = AudioDefault3d;
+//	preload = true;
+//};
+datablock AudioProfile(defaultPickupSfx) {
+	filename = "~/data/sound/ap_mbg/bouncehard2.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(dropSfx) {
+	filename = "~/data/sound/ap_mbg/bouncehard1.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(rotateSfx) {
+	filename = "~/data/sound/custom/archRotate.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(raiseSfx) {
+	filename = "~/data/sound/custom/keppyTick1.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(snapSfx1) {
+	filename = "~/data/sound/custom/keppySnap1.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(snapSfx2) {
+	filename = "~/data/sound/custom/keppySnap2.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(snapSfx3) {
+	filename = "~/data/sound/custom/keppySnap3.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(snapSfx4) {
+	filename = "~/data/sound/custom/keppySnap4.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(stashSfx) {
+	filename = "~/data/sound/custom/archStash.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+//datablock AudioProfile(platformLowerSfx) {
+//	filename	= "~/data/sound/custom/archStash.wav";
+//	description = AudioDefault3d;
+//	preload = true;
+//};
+
+// -----------------Shapes-----------------
+
+datablock StaticShapeData(hardhatData) {
+	shapeFile = "~/data/shapes/custom/marchitect/hardhat.dts"; 
+};
+datablock StaticShapeData(glassesData) {
+	shapeFile = "~/data/shapes/custom/marchitect/glasses.dts"; 
+};
+
+// -----------------Callbacks-----------------
+
+function clientCbOnFrameAdvance(%delta) {
+	if(!$Game::Menu)
+		Marchitect.FrameAdvance(%delta);
+}
+
+function clientCbOnRespawn() {
+	Marchitect.respawn();
+}
+function clientCbOnServerLeave() {
+	Marchitect.leave();
+}
+
+// -----------------Mission Objects-----------------
+
+new SimGroup(MissionGroup) {
+	new ScriptObject(MissionInfo) {
+		artist = "Keppy";
+		awesomeHint = "Help an experienced player master your level!";
+		customRadarRule = "0";
+		desc = "";
+		eastereggHint = "Don\'t fill out this field for PQ levels. Easter Eggs are in the other games!";
+		eggHint = "Help the player find the Nest Egg! If you choose to place one, of course.";
+		game = "PlatinumQuest";
+		generalHint = "";
+		level = "1000";
+		music = "Groove Police.ogg";
+		name = "Marble Architect";
+		radar = "1";
+		startHelpText = "";
+		trivia = "Share some fun trivia about this level!";
+		type = "Custom";
+		ultimateHint = "Help the player beat your level fast!";
+		platinumTime = "";
+		ultimateTime = "";
+	};
+	new ScriptObject(Marchitect) {
+		class = "KeppyMarchitect";
+		updatePlatform = true;
+		loopPeriodMS = 100;
+		initPosition = "0 0 -100";
+		initTransform = "0 0 -100 1 0 0 0";
+		objectLimit = 10;
+		shiftVal = 1;
+		pickupRadius = 1;
+		gridSize = 0.25;
+		rotationAngle = $pi / 4;
+		snapToGrid = true;
+		defaultPickupSound = "defaultPickupSfx";
+		angleThreshold = mCos($pi / 32);
+		invIndex = 0;
+		mountedObjectCount = 0;
+		platformEnabled = true;
+	};
+	new SimGroup(MarchitectEmptyGroup);
+	
+	new SimGroup(MarchitectGroup) {
+		new SimGroup(MarchitectMines) {
+			new StaticShape() { dataBlock = "LandMine"; };
+			new StaticShape() { dataBlock = "LandMine"; };
+			new StaticShape() { dataBlock = "LandMine"; };
+			new StaticShape() { dataBlock = "LandMine"; };
+			new StaticShape() { dataBlock = "LandMine"; };
+		};
+			new SimGroup(MarchitectTrapdoors) {
+			new StaticShape() { dataBlock = "TrapDoor"; };
+			new StaticShape() { dataBlock = "TrapDoor"; };
+			new StaticShape() { dataBlock = "TrapDoor"; };
+		};
+			new SimGroup(MarchitectTriBumpers) {
+			new StaticShape() { dataBlock = "TriangleBumper"; };
+			new StaticShape() { dataBlock = "TriangleBumper"; };
+			new StaticShape() { dataBlock = "TriangleBumper"; };
+		};
+		new SimGroup(MarchitectRoundBumpers) {
+			new StaticShape() { dataBlock = "RoundBumper"; };
+			new StaticShape() { dataBlock = "RoundBumper"; };
+			new StaticShape() { dataBlock = "RoundBumper"; };
+			new StaticShape() { dataBlock = "RoundBumper"; };
+			new StaticShape() { dataBlock = "RoundBumper"; };
+		};
+		new SimGroup(MarchitectFans) {
+			new StaticShape() { dataBlock = "DuctFan"; powerOn = 0; };
+			new StaticShape() { dataBlock = "DuctFan"; powerOn = 0; };
+			new StaticShape() { dataBlock = "DuctFan"; powerOn = 0; };
+		};
+		new SimGroup(MarchitectSigns) {
+			new StaticShape() { dataBlock = "SignPlainRight"; };
+			new StaticShape() { dataBlock = "SignPlainLeft"; };
+			new StaticShape() { dataBlock = "SignPlainUp"; };
+			new StaticShape() { dataBlock = "SignPlainDown"; };
+		};
+		new SimGroup(MarchitectAntiGrav) {
+			new Item() { dataBlock = "AntiGravityItem"; collideable = 0; static = 1; rotate = 1; };
+			new Item() { dataBlock = "AntiGravityItem"; collideable = 0; static = 1; rotate = 1; };
+			new Item() { dataBlock = "AntiGravityItem"; collideable = 0; static = 1; rotate = 1; };
+			new Item() { dataBlock = "AntiGravityItem"; collideable = 0; static = 1; rotate = 1; };
+		};
+		new SimGroup(MarchitectPowerups) {
+			new Item() { dataBlock = "ShockAbsorberItem"; collideable = 0; static = 1; rotate = 1; };
+			new Item() { dataBlock = "SuperSpeedItem";	collideable = 0; static = 1; rotate = 1; };
+			new Item() { dataBlock = "SuperBounceItem";   collideable = 0; static = 1; rotate = 1; };
+			new Item() { dataBlock = "SuperJumpItem";	 collideable = 0; static = 1; rotate = 1; };
+			new Item() { dataBlock = "HelicopterItem";	collideable = 0; static = 1; rotate = 1; };
+		};
+		new SimGroup(MarchitectInteriors1) {
+			new InteriorInstance() { interiorFile = "platinum/data/interiors_mbg/custom/marchitect/neutral_1x1.dif"; };
+			new InteriorInstance() { interiorFile = "platinum/data/interiors_mbg/custom/marchitect/neutral4_1x1.dif"; };
+			new InteriorInstance() { interiorFile = "platinum/data/interiors_mbg/custom/marchitect/warm_1x1.dif"; };
+			new InteriorInstance() { interiorFile = "platinum/data/interiors_mbg/custom/marchitect/warm1_1x1.dif"; };
+		};
+		//new SimGroup(MarchitectInteriors2) {
+		//  new InteriorInstance() { interiorFile = "platinum/data/interiors_mbg/custom/marchitect/space_2x2.dif"; };
+		//  new InteriorInstance() { interiorFile = "platinum/data/interiors_mbg/custom/marchitect/mud_2x2.dif"; };
+		//  new InteriorInstance() { interiorFile = "platinum/data/interiors_mbg/custom/marchitect/grass_2x2.dif"; };
+		//  new InteriorInstance() { interiorFile = "platinum/data/interiors_mbg/custom/marchitect/crate_2x2.dif"; };
+		//};
+	};
+
+	new SimGroup(MarchitectPlaced);
+	
+	new ActionMap(MarchitectControl);
+	
+	new Sky(Sky) {
+		visibleDistance = "500";
+		useSkyTextures = "1";
+		renderBottomTexture = "1";
+		SkySolidColor = "0.600000 0.600000 0.600000 1.000000";
+		materialList = "~/data/skies/sky_day.dml";
+		windVelocity = "1 0 0";
+		windEffectPrecipitation = "0";
+		noRenderBans = "1";
+	};
+	new Sun() {
+		direction = "0.638261 0.459006 -0.61801";
+		color = "1.400000 1.200000 0.400000 1.000000";
+		ambient = "0.300000 0.300000 0.400000 1.000000";
+	};
+	
+	new Marker(rotationHelper) {
+		position = Marchitect.initPosition;
+	};
+	new Marker(cameraHelper);
+	
+	new StaticShape(hardhat) {
+		dataBlock = "hardhatData";
+	};
+	new StaticShape(glasses) {
+		dataBlock = "glassesData";
+	};
+
+	new Trigger(Spawn) {
+		position = "0 0 0";
+		dataBlock = "SpawnTrigger";
+		polyhedron = "0.0000000 0.0000000 0.0000000 1.0000000 0.0000000 0.0000000 0.0000000 -1.0000000 0.0000000 0.0000000 0.0000000 1.0000000";
+		center = "1";
+		gravity = "1";
+	};
+	new InteriorInstance() {
+		position = "0 0 -2";
+		interiorFile = "~/data/interiors_mbg/custom/GoldTemplate.dif";
+		showTerrainInside = "0";
+	};
+	new InteriorInstance(platform) {
+		scale = "0.1 0.1 0.1";
+		interiorFile = "~/data/interiors_mbg/advanced/trapdoor.dif";
+		lastHeight = -100;
+		showTerrainInside = "0";
+	};
+	new SimGroup(PathNodeGroup) {
+		new StaticShape(CameraPath1) {
+			position = "20 0 7.5";
+			rotation = "0.128171 0.128172 -0.983435 90.9571";
+			dataBlock = "PathNode";
+		};
+		new StaticShape(SpinNode1) {
+			dataBlock = "PathNode";
+				nextNode = "SpinNode2";
+				timeToNext = "2500";
+				usePosition = "0";
+				useScale = "0";
+		};
+		new StaticShape(SpinNode2) {
+			rotation = "0 0 1 180";
+			dataBlock = "PathNode";
+				nextNode = "SpinNode1";
+				timeToNext = "2500";
+				usePosition = "0";
+				useScale = "0";
+		};
+		new StaticShape(RotationNode1) {
+			dataBlock = "PathNode";
+				Smooth = "1";
+				nextNode = "RotationNode2";
+				timeToNext = "200";
+				usePosition = "0";
+				useScale = "0";
+		};
+		new StaticShape(RotationNode2) {
+			rotation = "1 0 0 90";
+			dataBlock = "PathNode";
+				Smooth = "1";
+				usePosition = "0";
+				useScale = "0";
+		};
+		new StaticShape(ScaleNode1) {
+			scale = "0 0 0";
+			dataBlock = "PathNode";
+				Smooth = "1";
+				nextNode = "ScaleNode2";
+				timeToNext = "200";
+				usePosition = "0";
+				useRotation = "0";
+		};
+		new StaticShape(ScaleNode2) {
+			dataBlock = "PathNode";
+				Smooth = "1";
+				timeToNext = "200";
+				usePosition = "0";
+				useRotation = "0";
+		};
+		new StaticShape(ScaleNode3) {
+			dataBlock = "PathNode";
+				Smooth = "1";
+				nextNode = "ScaleNode4";
+				timeToNext = "200";
+				usePosition = "0";
+				useRotation = "0";
+		};
+		new StaticShape(ScaleNode4) {
+			scale = "0 0 0";
+			dataBlock = "PathNode";
+				Smooth = "1";
+				timeToNext = "200";
+				usePosition = "0";
+				useRotation = "0";
+		};
+	};
+};
+
+exec("platinum/server/scripts/keppy/marchitect.cs");
+
+Marchitect.InitObjects();

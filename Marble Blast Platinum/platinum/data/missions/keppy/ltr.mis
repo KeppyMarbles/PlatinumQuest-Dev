@@ -1,0 +1,119 @@
+//--- OBJECT WRITE BEGIN ---
+new SimGroup(MissionGroup) {
+	new ScriptObject(MissionInfo) {
+		artist = "Keppy";
+		desc = "Alex Swanson has had enough.";
+		goldTime = "4750";
+		level = "1";
+		music = "Classic Vibe.ogg";
+		name = "Learning to Troll";
+		type = "Beginner";
+	};
+	new ScriptObject(ltrLevel) {
+		class = "KeppyLTR";
+	};
+	
+	new SimGroup(ltrCleanup);
+	
+	new ScriptObject(sequenceList) { //TODO remove
+		count = 8;
+		name[0] = "createGem";
+		name[1] = "createGem2";
+		name[2] = "finishSwap";
+		name[3] = "createLowerPlatform";
+		name[4] = "bumperTraining";
+		name[5] = "removeLowerPlatform";
+		name[6] = "bumpersDestroyed";
+		name[7] = "runawayGem";
+	};
+	
+	new ScriptObject(bumperList) {
+		count = 12;
+		pos[1] = "-4.07437 10.0122 0.341325";
+		pos[2] = "-2.02081 16.1767 0.383519";
+		pos[3] = "-0.0411938 9.97323 0.336603";
+		pos[4] = "-4.04001 13.9775 0.327253";
+		pos[5] = "-0.0710166 14.002 0.335603";
+		pos[6] = "3.94924 13.9807 0.33585";
+		pos[7] = "3.95108 10.0421 0.335449";
+		pos[8] = "1.98706 16.1654 0.373131";
+		pos[9] = "-2.00514 7.7569 0.399237";
+		pos[10] = "1.97437 7.79189 0.398977";
+		pos[11] = "2.01911 12.0106 0.336975";
+		pos[12] = "-2.00954 11.9458 0.343807";
+	};
+	new Sky(Sky) {
+		position = "336 136 0";
+		rotation = "1 0 0 0";
+		scale = "1 1 1";
+		cloudHeightPer[0] = "0.349971";
+		cloudHeightPer[1] = "0.3";
+		cloudHeightPer[2] = "0.199973";
+		cloudSpeed1 = "0.0005";
+		cloudSpeed2 = "0.001";
+		cloudSpeed3 = "0.0003";
+		visibleDistance = "500";
+		useSkyTextures = "1";
+		renderBottomTexture = "1";
+		SkySolidColor = "0.900000 0.900000 0.900000 1.000000";
+		fogDistance = "300";
+		fogColor = "0.600000 0.600000 0.600000 1.000000";
+		fogVolume1 = "0 0 0";
+		fogVolume2 = "0 0 0";
+		fogVolume3 = "0 0 0";
+		materialList = "~/data/skies/sky_day.dml";
+		windVelocity = "1 1 0";
+		windEffectPrecipitation = "1";
+		noRenderBans = "1";
+		fogVolumeColor1 = "128.000000 128.000000 128.000000 -222768174765569860000000000000000000000.000000";
+		fogVolumeColor2 = "128.000000 128.000000 128.000000 0.000000";
+		fogVolumeColor3 = "128.000000 128.000000 128.000000 -170698929442160050000000000000000000000.000000";
+			locked = "true";
+	};
+	new Sun() {
+		direction = "0.544508 0.439467 -0.714409";
+		color = "1.400000 1.200000 0.400000 1.000000";
+		ambient = "0.300000 0.300000 0.400000 1.000000";
+			locked = "true";
+			position = "0 0 0";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+	};
+	new Trigger() {
+		position = "10 13 498.75";
+		rotation = "1 0 0 0";
+		scale = "1 14.2263 7.93753";
+		dataBlock = "hitMarbleTrigger";
+		polyhedron = "0.0000000 0.0000000 0.0000000 1.0000000 0.0000000 0.0000000 0.0000000 -1.0000000 0.0000000 0.0000000 0.0000000 1.0000000";
+			Object = "EndSign";
+			Time = "500";
+	};
+	new SimGroup(CheckPoints) {
+
+		new StaticShape(StartPoint) {
+			position = "0.0682294 0.50582 499.353";
+			rotation = "1 0 0 0";
+			scale = "1 1 1";
+			dataBlock = "StartPad_MBG";
+		};
+	};
+	new SimGroup(PathNodeGroup) {
+
+		new StaticShape(CameraPath1) {
+			position = "-6.49844 -10.234 506.665";
+			rotation = "0.686082 -0.171051 0.70713 38.8426";
+			scale = "1 1 1";
+			dataBlock = "PathNode";
+				nextNode = "CameraPath2";
+				placed = "1";
+				reverseRotation = "0";
+				timeToNext = "3000";
+				usePosition = "1";
+				useRotation = "1";
+				useScale = "0";
+		};
+	};
+};
+//--- OBJECT WRITE END ---
+
+exec("platinum/server/scripts/keppy/ltr.cs");

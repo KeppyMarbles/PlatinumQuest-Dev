@@ -1,0 +1,70 @@
+exec("platinum/server/scripts/keppy/jumpforever.cs");
+
+//--- OBJECT WRITE BEGIN ---
+new SimGroup(MissionGroup) {
+	new SimGroup(PlaygroundGroup) {
+		new StaticShape(StartPoint) {
+			position = "31 6 0";
+			dataBlock = "StartPad_MBG";
+		};
+		new InteriorInstance(wall1) {
+			interiorFile = "~/data/interiors_mbg/custom/jump/playground_wall1.dif";
+		};
+		new InteriorInstance(wall2) {
+			interiorFile = "~/data/interiors_mbg/custom/jump/playground_wall2.dif";
+		};
+		new InteriorInstance(wall3) {
+			interiorFile = "~/data/interiors_mbg/custom/jump/playground_wall3.dif";
+		};
+		new InteriorInstance(wall4) {
+			interiorFile = "~/data/interiors_mbg/custom/jump/playground_wall4.dif";
+		};
+	};
+	
+	new InteriorInstance() {
+		interiorFile = "~/data/interiors_mbg/custom/jump/playground_grass.dif";
+	};
+
+	new ScriptObject(MissionInfo) {
+		artist = "Keppy";
+		awesomeHint = "Help an experienced player master your level!";
+		customRadarRule = "0";
+		eastereggHint = "Don\'t fill out this field for PQ levels. Easter Eggs are in the other games!";
+		eggHint = "Help the player find the Nest Egg! If you choose to place one, of course.";
+		game = "PlatinumQuest";
+		level = "1000";
+		music = "Piece by Piece.ogg";
+		name = "Jump jump jump again";
+		radar = "1";
+		trivia = "Share some fun trivia about this level!";
+		type = "Custom";
+		ultimateHint = "Help the player beat your level fast!";
+		gameMode = "GemMadness";
+		Time = "150000";
+	};
+	new ScriptObject(Playground) {
+		class = "KeppyPlayground";
+	};
+	new Sky(Sky) {
+		visibleDistance = "1000";
+		useSkyTextures = "1";
+		renderBottomTexture = "1";
+		materialList = "~/data/skies/sky_day.dml";
+		noRenderBans = "1";
+	};
+	new Sun() {
+		direction = "0.442343 0.475025 -0.760713";
+		color = "1.400000 1.200000 0.500000 1.000000";
+		ambient = "0.300000 0.300000 0.400000 1.000000";
+	};
+	new SimGroup(PathNodeGroup) {
+		new StaticShape(CameraPath1) {
+			position = "20 0 7.5";
+			rotation = "0.128171 0.128172 -0.983435 90.9571";
+			scale = "1 1 1";
+			dataBlock = "PathNode";
+		};
+	};
+};
+//--- OBJECT WRITE END ---
+PlaygroundGroup.forEach("%this.noteBox");

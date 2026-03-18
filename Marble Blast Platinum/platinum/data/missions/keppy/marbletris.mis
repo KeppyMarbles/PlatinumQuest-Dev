@@ -1,0 +1,561 @@
+// Solutions
+// Store id of block in missionState.board
+// Use ids to move rows down when cleared
+// Update blocks by setting transform to position in board
+// 
+
+// Create drop preview
+// Update drop on left/right
+// Move CT to DT row on drop
+
+// Game Ideas
+// Starts like normal level, with block falling
+// Push key to go to tetris mode
+// Each clear creates a gem somewhere
+// 1 line: +1 gem
+// 2 lines: +3 gem
+// 3 lines: +5 gem
+// 4 lines: +8 gem?
+// Gems expire after a short time?
+// Do not end the game on a board overflow unless there are no gems on the board
+// Show: Level Up Available! when there are enough points on the board to level up
+  // perhaps have a custom sound effect; maybe change the gem creation sound effect to differentiate from pickup
+
+// 1 starting session, 1h
+// 4 class sessions , 5h
+// 1 session, changed shape position and added white text, 1h
+// 1 session, tested conceptual, 1h
+// 1 session, fixed checks for existing block in loop, changed local variables in loops, created drop function, 50min
+// 2 sessions, developed drop, 1h
+// 1 session, back to pc, 1h
+// 1 session, echo matrix, 20min
+// 1 session, developed drop, sfx, rotations, line clearing, 1h 30min
+// 1 session, created DT, added echos, 2h
+// Created swap, call on blocks, 1h30min
+// Experimented with calling functions, 1h
+// calling functions, particle emitters, 2h
+// Concieved gem madness mode, 30min
+// Fixed line clears, 2h
+// Created new map, 1h 30min
+// Tried getting a colliding block, 1h
+// Copied fade platform, 1h
+// Added new platform, flipped axis, added new map, made swap animation, 2h
+// Utilized utility functions for creation and rotation, took an hour to find one character bug, 2h
+// Created NT and HT, 1h
+// Created gem madness mode, 1h
+// Created gem scoring, 1h
+// Playtested, came up with ideas, messed with particles, 2h
+// Playtested, tried to add click block, changed time to 5min, 1h
+// Made drop trail, 30min
+// Destroy board, blast, 1h
+// Methods, 1h
+// Tried to rewrite code, stuff broke, 4h
+// Fixed rotations, 1h?
+// Removed utility and made linked blocks, hard coded rotations, 1h?
+// Worked on scoring system, 1h?
+// Leveling with gems, 1h
+// Time travel tetris, 30m
+// Looking back at it after a long while. 30m
+// Random stuff, 4h
+
+// Drops per second to reach level: (10*10*level/4)/(60*2+30)
+
+// Todo
+
+// Fix kick for line piece
+// Detections for t spins
+// Check other fade platforms to see if they're aligned
+// Add lock delay
+// Display level, lines cleared, gems created
+// Use marble to break unwanted blocks?
+// More particles for gems, try new sounds
+// Fix next
+// Cancel schedules
+// Progressing levels creates powerups? Time travels included
+// Prefs GUI?
+// Clear board if all gems are collected
+// Add stats (prefs)
+// Allow camera switch spam
+// Fix initial CT pos
+// Level Up Ready notification
+// Hide pieces on pause
+// Marble dummy?
+// Place superjumps on bottom of board clearing lines
+// Derive new datablocks for gems/particles
+// Put gems near bottom on early stages, further in increasing level
+
+// Ideas
+// Lay mines on the board?
+// Use blast to destroy tiles? Blocks in radius fall down
+// Tetris immediately gives time travel
+// Score/Next/Hold in mbg font
+
+// Move bottom of board up?
+
+// Collecting all of the gems resets the board completely, sfx and particles
+
+// Look into hybrid mode: marble position block column, right click to drop, scroll to rotate
+
+// remove tetris bounce particle, just edit the normal bounce
+
+
+datablock AudioProfile(tickSfx2) {
+	filename = "~/data/sound/custom/keppyTick2.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(snapSfx1) {
+	filename = "~/data/sound/custom/keppySnap1.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(snapSfx2) {
+	filename = "~/data/sound/custom/keppySnap2.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(snapSfx3) {
+	filename = "~/data/sound/custom/keppySnap3.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(snapSfx4) {
+	filename = "~/data/sound/custom/keppySnap4.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(swapSfx) {
+	filename = "~/data/sound/ap_mbg/ButtonPress.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(score1Sfx) {
+	filename = "~/data/sound/custom/gemScore1.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(score1Sfx) {
+	filename = "~/data/sound/custom/gemScore1.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(score2Sfx) {
+	filename = "~/data/sound/custom/gemScore2.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(score3Sfx) {
+	filename = "~/data/sound/custom/gemScore3.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(score4Sfx) {
+	filename = "~/data/sound/custom/gemScore4.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(score5Sfx) {
+	filename = "~/data/sound/custom/gemScore5.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(score6Sfx) {
+	filename = "~/data/sound/custom/gemScore6.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(score7Sfx) {
+	filename = "~/data/sound/custom/gemScore7.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(score8Sfx) {
+	filename = "~/data/sound/custom/gemScore8.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(score9Sfx) {
+	filename = "~/data/sound/custom/gemScore9.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+datablock AudioProfile(score10Sfx) {
+	filename = "~/data/sound/custom/gemScore10.wav";
+	description = AudioDefault3d;
+	preload = true;
+};
+
+datablock StaticShapeData(MarbletrisBlock) {
+	shapeFile = "~/data/shapes/custom/marbletris/marbletrisBlock3.dts";
+};
+
+exec("platinum/server/scripts/keppy/marbletris.cs");
+
+//--- OBJECT WRITE BEGIN ---
+new SimGroup(MissionGroup) {
+	//new ScriptObject(tetriminoData1) {
+	//  
+	//};
+	new ActionMap(MarbletrisControl);
+	new ActionMap(TetrisControl);
+	
+	new ScriptObject(Marbletris) { 
+		class = "KeppyMarbletris"; 
+	};
+	new ScriptObject(CT) { 
+		superClass = "Tetrimino"; 
+		class = "CurrentTetrimino"; 
+	};
+	new ScriptObject(DT) { 
+		superClass = "Tetrimino"; 
+		class = "DropTetrimino"; 
+	};
+	new ScriptObject(HT) { 
+		superClass = "Tetrimino"; 
+		class = "HoldTetrimino"; 
+	};
+	new ScriptObject(NT) { 
+		superClass = "Tetrimino"; 
+		class = "NextTetrimino"; 
+	};
+	
+	new SimGroup(MarbletrisObjects);
+	new SimGroup(MarbletrisGems);
+	
+	// TODO rename to MarbletrisStatic?
+	new ScriptObject(MissionList) {
+		//cameraTransform = "9 19 36 1 0 0 1.57079633";
+		cameraTransform = "9 17 36 1 0 0 1.5";
+		fallDelays = "500 400 300 250 200 150 125 100 75 50";
+		gems = "Red Yellow Orange Green Blue Purple Turquoise PinkTetris BlackTetris Platinum";
+		clearNames = "Single Double Triple Tetris";
+		lineScores = "100 300 500 800";
+		timeTravelID = 11;
+		gemSlots = Marbletris.getGemSlots();
+		
+		mino[1, 0] = 
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0" TAB
+		"0 1 1 1 1" TAB
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0";
+		mino[1, 1] = 
+		"0 0 0 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 1 0 0";
+		mino[1, 2] = 
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0" TAB
+		"1 1 1 1 0" TAB
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0";
+		mino[1, 3] = 
+		"0 0 1 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 0 0 0";
+		
+		mino[2, 0] = 
+		"0 0 0 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 1 1 0" TAB
+		"0 0 0 0 0";
+		mino[2, 1] = 
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0" TAB
+		"0 1 1 1 0" TAB
+		"0 1 0 0 0" TAB
+		"0 0 0 0 0";
+		mino[2, 2] = 
+		"0 0 0 0 0" TAB
+		"0 1 1 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 0 0 0";
+		mino[2, 3] = 
+		"0 0 0 0 0" TAB
+		"0 0 0 1 0" TAB
+		"0 1 1 1 0" TAB
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0";
+		
+		mino[3, 0] = 
+		"0 0 0 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 1 1 0 0" TAB
+		"0 0 0 0 0";
+		mino[3, 1] = 
+		"0 0 0 0 0" TAB
+		"0 1 0 0 0" TAB
+		"0 1 1 1 0" TAB
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0";
+		mino[3, 2] = 
+		"0 0 0 0 0" TAB
+		"0 0 1 1 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 0 0 0";
+		mino[3, 3] = 
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0" TAB
+		"0 1 1 1 0" TAB
+		"0 0 0 1 0" TAB
+		"0 0 0 0 0";
+		
+		mino[4, 0] = 
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0" TAB
+		"0 0 1 1 0" TAB
+		"0 0 1 1 0" TAB
+		"0 0 0 0 0";
+		mino[4, 1] = 
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0" TAB
+		"0 0 1 1 0" TAB
+		"0 0 1 1 0" TAB
+		"0 0 0 0 0";
+		mino[4, 2] = 
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0" TAB
+		"0 0 1 1 0" TAB
+		"0 0 1 1 0" TAB
+		"0 0 0 0 0";
+		mino[4, 3] = 
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0" TAB
+		"0 0 1 1 0" TAB
+		"0 0 1 1 0" TAB
+		"0 0 0 0 0";
+		
+		mino[5, 0] = 
+		"0 0 0 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 1 1 0" TAB
+		"0 0 0 1 0" TAB
+		"0 0 0 0 0";
+		mino[5, 1] = 
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0" TAB
+		"0 0 1 1 0" TAB
+		"0 1 1 0 0" TAB
+		"0 0 0 0 0";
+		mino[5, 2] = 
+		"0 0 0 0 0" TAB
+		"0 1 0 0 0" TAB
+		"0 1 1 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 0 0 0";
+		mino[5, 3] = 
+		"0 0 0 0 0" TAB
+		"0 0 1 1 0" TAB
+		"0 1 1 0 0" TAB
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0";
+		
+		mino[6, 0] = 
+		"0 0 0 0 0" TAB
+		"0 0 0 1 0" TAB
+		"0 0 1 1 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 0 0 0";
+		mino[6, 1] = 
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0" TAB
+		"0 1 1 0 0" TAB
+		"0 0 1 1 0" TAB
+		"0 0 0 0 0";
+		mino[6, 2] = 
+		"0 0 0 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 1 1 0 0" TAB
+		"0 1 0 0 0" TAB
+		"0 0 0 0 0";
+		mino[6, 3] = 
+		"0 0 0 0 0" TAB
+		"0 1 1 0 0" TAB
+		"0 0 1 1 0" TAB
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0";
+
+		mino[7, 0] = 
+		"0 0 0 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 1 1 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 0 0 0";
+		mino[7, 1] = 
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0" TAB
+		"0 1 1 1 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 0 0 0";
+		mino[7, 2] = 
+		"0 0 0 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 1 1 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 0 0 0";
+		mino[7, 3] = 
+		"0 0 0 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 1 1 1 0" TAB
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0";
+	};
+	new SimGroup(PathNodeGroup) {
+		new StaticShape(CameraPath1) {
+		dataBlock = "PathNode";
+		nextNode = "";
+		timeToNext = 1000;
+			Smooth = "1";
+			useScale = "0";
+		};
+		new StaticShape(marbletrisCameraPath1) {
+		dataBlock = "PathNode";
+		nextNode = "marbletrisCameraPath2";
+		timeToNext = 1000;
+			Smooth = "1";
+			useScale = "0";
+		};
+		new StaticShape(marbletrisCameraPath2) {
+		dataBlock = "PathNode";
+		nextNode = "marbletrisCameraPath1";
+		timeToNext = 1000;
+			Smooth = "1";
+			useScale = "0";
+		};
+		new StaticShape(sillyPath) {
+		dataBlock = "PathNode";
+		nextNode = "";
+		timeToNext = 1000;
+			Smooth = "1";
+			useScale = "0";
+		};
+	};
+
+	new ScriptObject(MissionInfo) {
+		artist = "Keppy";
+		awesomeHint = "Help an experienced player master your level!";
+		customRadarRule = "0";
+		desc = "Type your level description here";
+		eastereggHint = "Help the player find the Easter Egg! If you choose to place one, of course.";
+		eggHint = "This field is for PQ levels, which this level is not.";
+		game = "PlatinumQuest";
+		generalHint = "Help the player beat your level!";
+		level = "1000";
+		music = "Groove Police.ogg";
+		name = "Marbletris Revisited";
+		startHelpText = "Change this text!";
+		type = "Custom";
+		ultimateHint = "Help the player beat your level fast!";
+		gameMode = "GemMadness";
+		Time = "300000";
+		blast = true;
+		
+	};
+	new Sky(Sky) {
+		visibleDistance = "500";
+		useSkyTextures = "1";
+		renderBottomTexture = "1";
+		materialList = "~/data/skies/sky_day.dml";
+		noRenderBans = "1";
+	};
+	new Sun() {
+		direction = "0.442343 0.475025 -0.760713";
+		color = "1.400000 1.200000 0.500000 1.000000";
+		ambient = "0.300000 0.300000 0.400000 1.000000";
+	};
+	new InteriorInstance(board) {
+		interiorFile = "platinum/data/interiors_mbg/custom/marbletrisRevisited.dif";
+	};
+	new StaticShape(StartPoint) {
+		position = "9 -7.25 0.125";
+		dataBlock = "StartPad_MBG";
+	};
+	new Item() {
+		position = "6.5 -2.875 0.5";
+		dataBlock = "SuperBounceItem";
+		collideable = "0"; static = "1"; rotate = "1";
+	};
+	new Item() {
+		position = "-2 37.5 0.5";
+		dataBlock = "SuperSpeedItem";
+		collideable = "0"; static = "1"; rotate = "1";
+	};
+	new Item() {
+		position = "18.5 -3.625 0.5";
+		dataBlock = "SuperJumpItem";
+		collideable = "0"; static = "1"; rotate = "1";
+	};
+	new Item() {
+		position = "20 37.5 0.5";
+		dataBlock = "SuperSpeedItem";
+		collideable = "0"; static = "1"; rotate = "1";
+	};
+	new Item() {
+		position = "20 -1.5 0.5";
+		dataBlock = "SuperSpeedItem";
+		collideable = "0"; static = "1"; rotate = "1";
+	};
+	new Item() {
+		position = "-2 -1.5 0.5";
+		dataBlock = "SuperSpeedItem";
+		collideable = "0"; static = "1"; rotate = "1";
+	};
+	new Item() {
+		position = "17.625 2 -2.5";
+		dataBlock = "SuperJumpItem";
+		collideable = "0"; static = "1"; rotate = "1";
+	};
+	new Item() {
+		position = "0.625 38 -2.5";
+		dataBlock = "SuperJumpItem";
+		collideable = "0"; static = "1"; rotate = "1";
+	};
+};
+//--- OBJECT WRITE END ---
+
+marbletrisCameraPath2.setTransform(MissionList.cameraTransform);
+sillyPath.setTransform(MissionList.cameraTransform);
+activatePackage(MarbletrisPackage);
+Marbletris.createData();
+Marbletris.generateSequence();
+
+MarbletrisControl.bindCmd(keyboard, "q", "Marbletris.swap();", "");
+
+//TetrisControl.bindCmd(keyboard, "down", "CT.lower();", "");
+TetrisControl.bindCmd(keyboard, "d", "CT.shift(1);", "");
+TetrisControl.bindCmd(keyboard, "a", "CT.shift(-1);", "");
+
+TetrisControl.bindCmd(keyboard, "s", "CT.holdLower();", "cancel(CT.lowerSchedule);");
+//TetrisControl.bindCmd(keyboard, "d", "holdshiftCT1(1);", "releaseshiftCT();");
+//TetrisControl.bindCmd(keyboard, "a", "holdshiftCT1(-1);", "releaseshiftCT();");
+TetrisControl.bindCmd(keyboard, "w", "CT.rotate(1);", "");
+
+TetrisControl.bindCmd(keyboard, "lshift", "CT.hold();", "");
+TetrisControl.bindCmd(keyboard, "space", "CT.drop();", "");
+//TetrisControl.bindCmd(keyboard, "up", "rotateCT(1);", "");
+
+//TetrisControl.bindCmd(keyboard, "t", "nextCT();", "");
+
+TetrisControl.bind(mouse, "zaxis", "MarbletrisScroll");
+TetrisControl.bind(mouse, "xaxis", "MarbletrisX");
+TetrisControl.bind(mouse, "yaxis", "");
+//TetrisControl.bindCmd(mouse, "button0", "CT.drop();", "");
+
+TetrisControl.bindCmd(keyboard, "j", "Marbletris.ReloadScript();", "");
+MarbletrisControl.bindCmd(keyboard, "j", "Marbletris.ReloadScript();", "");
+
+//GemItemPink.huntExtraValue = 7; // TODO maybe make a new derived datablock instead
+//GemItemBlack.huntExtraValue = 8;
+//
+//for(%i = 0; %i < getWordCount(MissionList.gems); %i++) {
+//  %color = getWord(MissionList.gems, %i);
+//  eval ("GemParticle" @ %color @ ".sizes[0] = 5;"); // TODO definitely make a derived datablock here
+//}
