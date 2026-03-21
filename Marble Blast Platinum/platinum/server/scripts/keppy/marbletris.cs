@@ -1,23 +1,53 @@
+datablock AudioProfile(swapSfx : ReadyVoiceSfx)    { filename = "~/data/sound/ap_mbg/ButtonPress.wav"; };
+datablock AudioProfile(tickSfx2 : ReadyVoiceSfx)   { filename = "~/data/sound/custom/keppyTick2.wav"; };
+datablock AudioProfile(snapSfx1 : ReadyVoiceSfx)   { filename = "~/data/sound/custom/keppySnap1.wav"; };
+datablock AudioProfile(snapSfx2 : ReadyVoiceSfx)   { filename = "~/data/sound/custom/keppySnap2.wav"; };
+datablock AudioProfile(snapSfx3 : ReadyVoiceSfx)   { filename = "~/data/sound/custom/keppySnap3.wav"; };
+datablock AudioProfile(snapSfx4 : ReadyVoiceSfx)   { filename = "~/data/sound/custom/keppySnap4.wav"; };
+datablock AudioProfile(score1Sfx : ReadyVoiceSfx)  { filename = "~/data/sound/custom/gemScore1.wav"; };
+datablock AudioProfile(score1Sfx : ReadyVoiceSfx)  { filename = "~/data/sound/custom/gemScore1.wav"; };
+datablock AudioProfile(score2Sfx : ReadyVoiceSfx)  { filename = "~/data/sound/custom/gemScore2.wav"; };
+datablock AudioProfile(score3Sfx : ReadyVoiceSfx)  { filename = "~/data/sound/custom/gemScore3.wav"; };
+datablock AudioProfile(score4Sfx : ReadyVoiceSfx)  { filename = "~/data/sound/custom/gemScore4.wav"; };
+datablock AudioProfile(score5Sfx : ReadyVoiceSfx)  { filename = "~/data/sound/custom/gemScore5.wav"; };
+datablock AudioProfile(score6Sfx : ReadyVoiceSfx)  { filename = "~/data/sound/custom/gemScore6.wav"; };
+datablock AudioProfile(score7Sfx : ReadyVoiceSfx)  { filename = "~/data/sound/custom/gemScore7.wav"; };
+datablock AudioProfile(score8Sfx : ReadyVoiceSfx)  { filename = "~/data/sound/custom/gemScore8.wav"; };
+datablock AudioProfile(score9Sfx : ReadyVoiceSfx)  { filename = "~/data/sound/custom/gemScore9.wav"; };
+datablock AudioProfile(score10Sfx : ReadyVoiceSfx) { filename = "~/data/sound/custom/gemScore10.wav"; };
 
-datablock ParticleData(TetrisBounceParticle : BounceParticle)	{
-	sizes[0] = 0.75;
-	sizes[1] = 0.75;
-	sizes[2] = 0.75;
+datablock StaticShapeData(MarbletrisBlock) { shapeFile = "~/data/shapes/custom/marbletris/marbletrisBlock3.dts"; };
+
+datablock ItemData(GemItemPinkTetris : GemItemPink)   { huntExtraValue = 7; };
+datablock ItemData(GemItemBlackTetris : GemItemBlack) { huntExtraValue = 8; };
+
+datablock ParticleData(GemParticleGreenTetris : GemParticleGreen)              { sizes[0] = 5; };
+datablock ParticleEmitterData(GemEmitterGreenTetris : GemEmitterGreen)         { particles = "GemParticleGreenTetris"; };
+datablock ParticleData(GemParticleRedTetris : GemParticleRed)                  { sizes[0] = 5; };
+datablock ParticleEmitterData(GemEmitterRedTetris : GemEmitterRed)             { particles = "GemParticleRedTetris"; };
+datablock ParticleData(GemParticleBlueTetris : GemParticleBlue)                { sizes[0] = 5; };
+datablock ParticleEmitterData(GemEmitterBlueTetris : GemEmitterBlue)           { particles = "GemParticleBlueTetris"; };
+datablock ParticleData(GemParticleBlackTetris : GemParticleBlack)              { sizes[0] = 5; };
+datablock ParticleEmitterData(GemEmitterBlackTetris : GemEmitterBlack)         { particles = "GemParticleBlackTetris"; };
+datablock ParticleData(GemParticlePlatinumTetris : GemParticlePlatinum)        { sizes[0] = 5; };
+datablock ParticleEmitterData(GemEmitterPlatinumTetris : GemEmitterPlatinum)   { particles = "GemParticlePlatinumTetris"; };
+datablock ParticleData(GemParticleYellowTetris : GemParticleYellow)            { sizes[0] = 5; };
+datablock ParticleEmitterData(GemEmitterYellowTetris : GemEmitterYellow)       { particles = "GemParticleYellowTetris"; };
+datablock ParticleData(GemParticlePurpleTetris : GemParticlePurple)            { sizes[0] = 5;};
+datablock ParticleEmitterData(GemEmitterPurpleTetris : GemEmitterPurple)       { particles = "GemParticlePurpleTetris"; };
+datablock ParticleData(GemParticleOrangeTetris : GemParticleOrange)            { sizes[0] = 5;};
+datablock ParticleEmitterData(GemEmitterOrangeTetris : GemEmitterOrange)       { particles = "GemParticleOrangeTetris"; };
+datablock ParticleData(GemParticlePinkTetris : GemParticlePink)                { sizes[0] = 5;};
+datablock ParticleEmitterData(GemEmitterPinkTetris : GemEmitterPink)           { particles = "GemParticlePinkTetris"; };
+datablock ParticleData(GemParticleTurquoiseTetris : GemParticleTurquoise)      { sizes[0] = 5;};
+datablock ParticleEmitterData(GemEmitterTurquoiseTetris : GemEmitterTurquoise) { particles = "GemParticleTurquoiseTetris"; };
+
+datablock ParticleData(TetrisBounceParticle : BounceParticle) { 
+	sizes[0] = 0.75; 
+	sizes[1] = 0.75; 
+	sizes[2] = 0.75; 
 };
-
-datablock ParticleEmitterData(TetrisBounceEmitter : MarbleBounceEmitter)	{
-	particles = "TetrisBounceParticle";
-};
-
-datablock ItemData(GemItemPinkTetris : GemItemPink) {
-	huntExtraValue = 7;
-};
-
-datablock ItemData(GemItemBlackTetris : GemItemBlack) {
-	huntExtraValue = 8;
-};
-
-
+datablock ParticleEmitterData(TetrisBounceEmitter : MarbleBounceEmitter) { particles = "TetrisBounceParticle"; };
 
 //todo: allow spam
 //TODO the marble moves now in freecam, we'll need to freeze it or get the new camera transform
@@ -51,7 +81,7 @@ function KeppyMarbletris::swap(%this) {
 		marbletrisCameraPath1.setPosition(VectorAdd(marbletrisCameraPath1.position, %cameraOffset));
 		
 		LocalClientConnection.camera.moveOnPath(marbletrisCameraPath2);
-		LocalClientConnection.schedule(marbletrisCameraPath2.timeToNext, "setToggleCamera", false);
+		LocalClientConnection.schedule(marbletrisCameraPath2.timeToNext, "setToggleCamera", false); // TODO cancel this
 		%this.cameraSch = LocalClientConnection.camera.schedule(marbletrisCameraPath1.timeToNext, "cancelMoving");
 		//LocalClientConnection.schedule(marbletrisCameraPath1.timeToNext, "freezeMarble", false);
 		DT.hide(true);
@@ -145,7 +175,6 @@ function KeppyMarbletris::init(%this) { // TODO onMissionReset
 		level = 1;
 		gemLevelRequirement = 10;
 	};
-	%this.availableGemSlots = MissionList.gemSlots;
 	MissionGroup.add(%this);
 	return %this;
 }
@@ -153,28 +182,20 @@ function KeppyMarbletris::init(%this) { // TODO onMissionReset
 function KeppyMarbletris::createData(%this) {
 	debug("Creating tetrimino data");
 	for(%i = 1; %i <= 7; %i++) {
-		%dataName = "TetriminoData" @ %i;
-		%data = new ScriptObject(%dataName);
+		%data = new ScriptObject();
 		for(%r = 0; %r < 4; %r++) {
-			for(%x = 0; %x < 5; %x++) {
-				%row = getField(MissionList.mino[%i, %r], %x);
-				for(%y = 0; %y < 5; %y++) {
-					%data.matrix[%r, %x, %y] = getWord(%row, %y);
+			for(%textRow = 0; %textRow < 5; %textRow++) {
+				%line = getField(MissionList.mino[%i, %r], %textRow);
+				for(%textCol = 0; %textCol < 5; %textCol++) {
+					%x = %textCol; 
+					%y = 4 - %textRow;
+					%data.matrix[%r, %x, %y] = getWord(%line, %textCol);
 				}
 			}
 		}
 		MissionGroup.add(%data);
+		MissionList.tetriminoData[%i] = %data;
 	}
-}
-
-function KeppyMarbletris::getGemSlots(%this) {
-	%list = "";
-	for(%x = -1; %x < 11; %x++) {
-		for(%y = 0; %y < 18; %y++) { //2 less than board height?
-			%list = AddField(%list, %x*2 SPC %y*2 SPC 0.25);
-		}
-	}
-	return %list;
 }
 
 function KeppyMarbletris::generateSequence(%this) {
@@ -242,7 +263,7 @@ function CurrentTetrimino::create(%this, %id) {
 function Tetrimino::createBlocks(%this, %id) {
 	debug("Creating blocks for" SPC %this SPC "with id" SPC %id);
 	%this.id = %id;
-	%this.data = "tetriminoData" @ %id;
+	%this.data = MissionList.tetriminoData[%id];
 	
 	for(%x = 0; %x < 5; %x++) {
 		for(%y = 0; %y < 5; %y++) {
@@ -253,15 +274,15 @@ function Tetrimino::createBlocks(%this, %id) {
 			
 			if(%this.data.matrix[0, %x, %y]) {
 				%block = new StaticShape() {
-				position = "0 0 -100";
-				dataBlock = MarbletrisBlock;
-				x = %x;
-				y = %y;
+					position = "0 0 -100";
+					dataBlock = MarbletrisBlock;
+					x = %x;
+					y = %y;
 				};
 				if(%prevBlock)
-				%prevBlock.next = %block;
+					%prevBlock.next = %block;
 				else
-				%this.start = %block;
+					%this.start = %block;
 				
 				MarbletrisObjects.add(%block);
 				%this.matrix[%x, %y] = %block;
@@ -287,7 +308,7 @@ function KeppyMarbletris::next(%this) {
 	debug("Updating bagPos to" SPC %this.bagPos);
 
 	CT.create(%this.next[%this.bagPos]);
-	NT.createStatic(%this.next[%this.bagPos+1], 16, 13);
+	NT.createStatic(%this.next[%this.bagPos+1], 15, 11);
 }
 
 function KeppyMarbletris::lowerCTLoop(%this) {
@@ -328,19 +349,15 @@ function CurrentTetrimino::shift(%this, %val) {
 	for(%b = %this.start; %b; %b = %b.next) {
 		%nextX = %b.xPos + %val;
 		if(%nextX < 0 || %nextX > 9 || Marbletris.board[%nextX, %b.yPos]) {
-		debug(%b SPC "collided with something");
-		return;
+			debug(%b SPC "collided with something");
+			return;
 		}
 	}
 	
 	cancel(%this.lockSch);
-	
 	%this.col += %val;
-	
 	%this.updateTransform();
-	
 	Marbletris.playSnapSfx();
-
 	DT.refresh();
 }
 
@@ -367,7 +384,7 @@ function CurrentTetrimino::lower(%this, %user) {
 	}
 
 	for(%b = %this.start; %b; %b = %b.next) {
-		debug("Creating trail particle for" SPC %this);
+		//debug("Creating trail particle for" SPC %this);
 		spawnEmitter(200, MarbleTrailEmitter, %b.position, false);
 	}
 	
@@ -387,7 +404,6 @@ function DropTetrimino::refresh(%this) {
 	%this.rotIndex = CT.rotIndex;
 	
 	%minDist = 25;
-	
 	for(%b = CT.start; %b; %b = %b.next) {
 		for(%i = %b.yPos; %i >= -1; %i--) {
 			if(Marbletris.board[%b.xPos, %i] || %i == -1) {
@@ -399,7 +415,6 @@ function DropTetrimino::refresh(%this) {
 	}
 	
 	%this.row = CT.row - %minDist;
-	
 	%this.updateTransform();
 }
 
@@ -445,21 +460,18 @@ function CurrentTetrimino::place(%this) {
 	cancel(%this.lowerSchedule);
 	
 	%this.placed = true;
-	
-	for(%b = %this.start; %b; %b = %b.next)
-		Marbletris.board[%b.xPos, %b.yPos] = %b;
-	
-	//if(%this.dropScore >= 100) {
-	//  Marbletris.createGem(1);
-	//  messageClient(LocalClientConnection, 'MsgItemPickup', "Drop Bonus = 100");
-	//  %this.dropScore -= 100;
-	//} 
+	Marbletris.onTetriminoPlaced(%this);
+}
+
+function KeppyMarbletris::onTetriminoPlaced(%this, %mino) {
+	for(%b = %mino.start; %b; %b = %b.next)
+		%this.board[%b.xPos, %b.yPos] = %b;
 
 	for(%y = 0; %y < 25; %y++) {
 		%clear = true;
 		for(%x = 0; %x < 10; %x++) {
 			// fix?
-			%clear = Marbletris.board[%x, %y];
+			%clear = %this.board[%x, %y];
 			if(!%clear) {
 				debug("No clear on row" SPC %y @ "; no block at" SPC %x SPC %y);
 				break;
@@ -473,19 +485,21 @@ function CurrentTetrimino::place(%this) {
 
 	if(%clears $= "") {
 		if(%this.row == 20) {
-			cancel(Marbletris.lowerCTSchedule);
-			if(Marbletris.getBoardValue() == 0)
+			cancel(%this.lowerCTSchedule);
+			if(%this.getBoardValue() == 0)
 				endGameSetup();
 		}
 		else
-			Marbletris.next();
-		Marbletris.streak = 0;
-		Marbletris.msg = "";
+			%this.next();
+		%this.streak = 0;
+		%this.msg = "";
 	}
 	else
-		Marbletris.clearRows(ltrim(%clears));
+		%this.clearRows(ltrim(%clears));
 	
-	Marbletris.playDropSfx();
+	%this.playDropSfx();
+
+	//%this.maxHeight = max(%this.maxHeight, %this.getBoardMaxHeight());
 }
 
 // -----------------Hold Tetrominos-----------------
@@ -504,7 +518,7 @@ function CurrentTetrimino::hold(%this) {
 		Marbletris.next();
 	
 	%this.held = true;
-	HT.createStatic(%id, 16, -4);
+	HT.createStatic(%id, 15, -6);
 	LocalClientConnection.play2D("swapSfx");
 }
 
@@ -532,58 +546,63 @@ function Tetrimino::setRotation(%this, %rot) {
 	}
 }
 
-function CurrentTetrimino::rotate(%this, %val) {
-	debug("Rotating" SPC %this SPC "with val" SPC %val);
-	%rotIndex = (%this.rotIndex+%val) % 4;
-	if(%rotIndex $= -1)
-		%rotIndex = 3;
-	echo(%rotIndex);
-
-	%kickNone = %kickRight = %kickLeft = %kickUp = %kickDown = true;
+function Tetrimino::checkCollision(%this, %rotIndex, %colOffset, %rowOffset) {
 	for(%x = 0; %x < 5; %x++) {
 		for(%y = 0; %y < 5; %y++) {
 			if(%this.data.matrix[%rotIndex, %x, %y]) {
-				debug("Checking for kick with" SPC %this.data.matrix[%rotIndex, %x, %y]);
-				%xPos = %x+%this.col;
-				%yPos = %y+%this.row;
+				%checkX = %x + %this.col + %colOffset;
+				%checkY = %y + %this.row + %rowOffset;
 				
-				//if(Marbletris.board[%xPos, %yPos] || %xPos > 9 || %xPos < 0 || %yPos < 0)
-				if(Marbletris.board[%xPos, %yPos] || %xPos > 9 || %xPos < 0)
-					%kickNone = false;
-				
-				if(Marbletris.board[%xPos+1, %yPos] || %xPos+1 > 9)
-					%kickRight = false;
-				
-				if(Marbletris.board[%xPos-1, %yPos] || %xPos-1 < 0)
-					%kickLeft = false;
-				
-				//if(Marbletris.board[%xPos, %yPos+1])
-				//  %kickUp = false;
-				//
-				//if(Marbletris.board[%xPos, %yPos-1] || %yPos == 0)
-				//  %kickDown = false;
+				// Check walls, floor, and existing blocks
+				if(%checkX < 0 || %checkX > 9 || %checkY < 0 || Marbletris.board[%checkX, %checkY]) {
+					return true; // Collision found!
+				}
 			}
 		}
 	}
-	debug("Kick none:" SPC %kickNone SPC "Kick right:" SPC %kickRight SPC "Kick left:" SPC %kickLeft);
+	return false; 
+}
+
+function CurrentTetrimino::rotate(%this, %val) { //TODO bug with J piece
+	debug("Rotating" SPC %this SPC "with val" SPC %val);
+	%nextRotIndex = (((%this.rotIndex + %val) % 4) + 4) % 4;
+	debug("From" SPC %this.rotIndex SPC "to" SPC %nextRotIndex SPC "on id" SPC %this.id);
 	
-	if(!%kickNone) {
-		if(%kickRight)
-			%this.col++;
-		else if(%kickLeft)
-			%this.col--;
-		//else if(%kickUp)
-		//  %this.row++;
-		//else if(%kickDown)
-		//  %this.row--;
-		else
-			return;
+	switch(%this.id) {
+		case 4: // O piece
+			%kickData = "0 0";
+		case 1: // I piece
+			%kickData = MissionList.SRSKick_I[%this.rotIndex, %nextRotIndex];
+		default:
+			%kickData = MissionList.SRSKick_Normal[%this.rotIndex, %nextRotIndex];
 	}
+
+	%testCount = (%kickData) / 2;
+	for(%i = 0; (%test = getField(%kickData, %i)) !$= ""; %i++) {
+		%testX = firstWord(%test);
+		%testY = restWords(%test);
+		if(!%this.checkCollision(%nextRotIndex, %testX, %testY)) {
+			// Found a valid position!
+			%kicked = true;
+			%kickX = %testX;
+			%kickY = %testY;
+			break; 
+		}
+	}
+
+	if(!%kicked) {
+		debug("Rotation failed - no valid SRS kicks available");
+		return;
+	}
+	debug("Kick X:" SPC %kickX SPC "Kick Y:" SPC %kickZ);
+
+	%this.col += %kickX;
+	%this.row += %kickY;
 	
 	cancel(%this.lockSch);
 	
-	%this.setRotation(%rotIndex);
-	DT.setRotation(%rotIndex);
+	%this.setRotation(%nextRotIndex);
+	DT.setRotation(%nextRotIndex);
 	DT.refresh();
 	
 	alxPlay(tickSfx2);
@@ -603,7 +622,7 @@ function KeppyMarbletris::dropBoard(%this, %rows) {
 	%this.updateBoard();
 }
 
-function KeppyMarbletris::blastBlocks(%this) {
+function KeppyMarbletris::blastBlocks(%this) { //TODO base off of blast meter
 	debug("Blasting blocks");
 	%marblePos = localClientConnection.player.position;
 	%x = mRound(getWord(%marblePos, 0) / 2 - 0.5);
@@ -796,9 +815,9 @@ function KeppyMarbletris::clearRows(%this, %rows) {
 	if(%num)
 		%gems = AddWord(%gems, %num);
 	
-	if(%tt) {
-		%gems = AddWord(%gems, MissionList.timeTravelID);
-	}
+	//if(%tt) {
+	//	%gems = AddWord(%gems, MissionList.timeTravelID);
+	//}
 
 	echo("Gems:" SPC %gems);
 	%this.createGems(%gems);
@@ -807,40 +826,64 @@ function KeppyMarbletris::clearRows(%this, %rows) {
 	LocalClientConnection.incBonusTime(%dropDelay);
 }
 
-function KeppyMarbletris::createGems(%this, %gems) {
-  for(%i = 0; %i < getWordCount(%gems); %i++) {
-	%num = getWord(%gems, %i);
-	%this.schedule(500*%i, "createGem", %num);
-  }
-	
+function KeppyMarbletris::getBoardMaxHeight(%this) {
+	for(%y = 24; %y >= 0; %y--) { 
+		for(%x = 0; %x < 10; %x++) {
+			if(isObject(%this.board[%x, %y])) {
+				return %y;
+			}
+		}
+	}
+	return 0;
 }
 
-// todo its a bit unfair to have gems at the top of the board, maybe have them only spawn at some distance from the top
+function KeppyMarbletris::createGems(%this, %gems) {
+	%maxHeight = max(4, %this.getBoardMaxHeight()); // TODO sub cleared rows?
+	// TODO could also just base max height on current level. I think always having a low height would make the game boring.
+	%availableSlots = "";
+	for(%y = 0; %y < 25; %y++) {
+		for(%x = 0; %x < 10; %x++) {
+			if(!%this.boardGems[%x, %y])
+				%availableSlots = addField(%availableSlots, %x SPC %y);
+		}
+		if(%y >= %maxHeight && getFieldCount(%availableSlots) >= getWordCount(%gems))
+			break;
+	}
+	//if(getFieldCount(%availableSlots) < getWordCount(%gems)) {
+	//	error("Filled all gem slots??");
+	//	return;
+	//}
+	for(%i = 0; %i < getWordCount(%gems); %i++) {
+		%num = getWord(%gems, %i);
+		%slotIndex = getRandom(0, getFieldCount(%availableSlots)-1);
+		%slot = getField(%availableSlots, %slotIndex);
+		%availableSlots = removeField(%availableSlots, %slotIndex);
+		%this.schedule(500*%i, "createGem", %num, firstWord(%slot), restWords(%slot));
+	}
+}
+
 // TODO the sounds should probably be in major key
-function KeppyMarbletris::createGem(%this, %num) {
+function KeppyMarbletris::createGem(%this, %num, %x, %y) {
 	%color = getWord(MissionList.gems, %num-1);
-	// todo: no gem positions available
-	// gem spawns on the row that was cleared?
-	// add position back and delete gem when picking up
-	%posIndex = getRandom(0, getFieldCount(%this.availableGemSlots)-1);
-	%position = getField(%this.availableGemSlots, %posIndex);
-	// TODO maybe see if there's a block adjacent?
-	%this.availableGemSlots = removeField(%this.availableGemSlots, %posIndex);
-	if(%num != MissionList.timeTravelID) {
+	%position = %x*2 SPC %y*2 SPC 0.25;
+	
+	//if(%num != MissionList.timeTravelID) {
 		%dataBlock = "GemItem" @ %color;
-		//spawnEmitter(200, "GemEmitter" @ %color, %position, false);
+		spawnEmitter(200, "GemEmitter" @ %color @ "Tetris", %position, false);
 		spawnEmitter(200, LandMineSparkEmitter, %position, false);
 		LocalClientConnection.play2D("score" @ %num @ "Sfx");
 		%group = MarbletrisGems;
-	}
-	else {
-		%position = VectorAdd(%position, "0 0 0.75");
-		%dataBlock = TimeTravelItem;
-		%group = MarbletrisObjects;
-	}
+	//}
+	//else {
+	//	%position = VectorAdd(%position, "0 0 0.75");
+	//	%dataBlock = TimeTravelItem;
+	//	%group = MarbletrisObjects;
+	//}
 	%gem = new Item() {
 		position = %position;
 		dataBlock = %dataBlock;
+		x = %x;
+		y = %y;
 		collideable = "0";
 		static = "1";
 		rotate = "1";
@@ -849,8 +892,11 @@ function KeppyMarbletris::createGem(%this, %num) {
 	//%this.currentGems++;
 	%group.add(%gem);
 	%gem._huntDatablock = "gemItem" @ %color;
-	if(%this.getBoardValue() > (%this.gemLevelRequirement-PlayGui.gemCount)) {
-		%this.levelUpReady();
+	%this.boardGems[%x, %y] = %gem;
+	if(%this.getBoardValue() > (%this.gemLevelRequirement - PlayGui.gemCount)) {
+		if(!%this.messagedReady)
+			messageClient(LocalClientConnection, 'MsgItemPickup', "Level Up Ready");
+		%this.messagedReady = true;
 	}
 }
 
@@ -860,12 +906,6 @@ function KeppyMarbletris::getBoardValue(%this) {
 		%count += MarbletrisGems.getObject(%i)._huntDatablock.huntExtraValue;
 	}
 	return %count;
-}
-
-function KeppyMarbletris::levelUpReady(%this) {
-	if(!%this.messagedReady)
-		messageClient(LocalClientConnection, 'MsgItemPickup', "Level Up Ready");
-	%this.messagedReady = true;
 }
 
 function KeppyMarbletris::levelUp(%this) {
@@ -879,7 +919,8 @@ function KeppyMarbletris::onGemCollected(%this, %gem) {
 	%lastLevel = %this.level;
 	//echo(PlayGui.gemCount);
 	//echo(%this.gemLevelRequirement);
-	%this.availableGemSlots = AddField(%this.availableGemSlots, %gem.position);
+	%this.boardGems[%gem.x, %gem.y] = "";
+	//%this.availableGemSlots = AddField(%this.availableGemSlots, %gem.position);
 	if (PlayGui.gemCount > %this.gemLevelRequirement) { // todo show requirement
 		%this.levelUp();
 	}
@@ -909,7 +950,7 @@ package MarbletrisPackage {
 		Parent::back(%this);
 		MarbletrisControl.push();
 	}
-	function Gem::onPickup(%this,%obj,%user,%amount) {
+	function Gem::onPickup(%this,%obj,%user,%amount) { // TODO need this for TT too?
 		Parent::onPickup(%this,%obj,%user,%amount);
 		Marbletris.onGemCollected(%obj);
 	}

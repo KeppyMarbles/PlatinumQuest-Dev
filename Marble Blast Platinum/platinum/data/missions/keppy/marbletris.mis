@@ -57,6 +57,7 @@
 // Time travel tetris, 30m
 // Looking back at it after a long while. 30m
 // Random stuff, 4h
+// SRS and max gem height
 
 // Drops per second to reach level: (10*10*level/4)/(60*2+30)
 
@@ -74,7 +75,7 @@
 // Progressing levels creates powerups? Time travels included
 // Prefs GUI?
 // Clear board if all gems are collected
-// Add stats (prefs)
+// Add stats (prefs). Include max score, max lines cleared, max streak, max move score, total lines cleared.
 // Allow camera switch spam
 // Fix initial CT pos
 // Level Up Ready notification
@@ -82,7 +83,7 @@
 // Marble dummy?
 // Place superjumps on bottom of board clearing lines
 // Derive new datablocks for gems/particles
-// Put gems near bottom on early stages, further in increasing level
+// Put gems near bottom on early stages, further in increasing level? Or do it the highest that the player has built or is currently built?
 
 // Ideas
 // Lay mines on the board?
@@ -95,99 +96,6 @@
 // Collecting all of the gems resets the board completely, sfx and particles
 
 // Look into hybrid mode: marble position block column, right click to drop, scroll to rotate
-
-// remove tetris bounce particle, just edit the normal bounce
-
-
-datablock AudioProfile(tickSfx2) {
-	filename = "~/data/sound/custom/keppyTick2.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(snapSfx1) {
-	filename = "~/data/sound/custom/keppySnap1.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(snapSfx2) {
-	filename = "~/data/sound/custom/keppySnap2.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(snapSfx3) {
-	filename = "~/data/sound/custom/keppySnap3.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(snapSfx4) {
-	filename = "~/data/sound/custom/keppySnap4.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(swapSfx) {
-	filename = "~/data/sound/ap_mbg/ButtonPress.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(score1Sfx) {
-	filename = "~/data/sound/custom/gemScore1.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(score1Sfx) {
-	filename = "~/data/sound/custom/gemScore1.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(score2Sfx) {
-	filename = "~/data/sound/custom/gemScore2.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(score3Sfx) {
-	filename = "~/data/sound/custom/gemScore3.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(score4Sfx) {
-	filename = "~/data/sound/custom/gemScore4.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(score5Sfx) {
-	filename = "~/data/sound/custom/gemScore5.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(score6Sfx) {
-	filename = "~/data/sound/custom/gemScore6.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(score7Sfx) {
-	filename = "~/data/sound/custom/gemScore7.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(score8Sfx) {
-	filename = "~/data/sound/custom/gemScore8.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(score9Sfx) {
-	filename = "~/data/sound/custom/gemScore9.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(score10Sfx) {
-	filename = "~/data/sound/custom/gemScore10.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-
-datablock StaticShapeData(MarbletrisBlock) {
-	shapeFile = "~/data/shapes/custom/marbletris/marbletrisBlock3.dts";
-};
 
 exec("platinum/server/scripts/keppy/marbletris.cs");
 
@@ -231,24 +139,23 @@ new SimGroup(MissionGroup) {
 		clearNames = "Single Double Triple Tetris";
 		lineScores = "100 300 500 800";
 		timeTravelID = 11;
-		gemSlots = Marbletris.getGemSlots();
 		
 		mino[1, 0] = 
 		"0 0 0 0 0" TAB
-		"0 0 0 0 0" TAB
 		"0 1 1 1 1" TAB
+		"0 0 0 0 0" TAB
 		"0 0 0 0 0" TAB
 		"0 0 0 0 0";
 		mino[1, 1] = 
-		"0 0 0 0 0" TAB
-		"0 0 1 0 0" TAB
-		"0 0 1 0 0" TAB
-		"0 0 1 0 0" TAB
-		"0 0 1 0 0";
+		"0 0 0 1 0" TAB
+		"0 0 0 1 0" TAB
+		"0 0 0 1 0" TAB
+		"0 0 0 1 0" TAB
+		"0 0 0 0 0";
 		mino[1, 2] = 
 		"0 0 0 0 0" TAB
 		"0 0 0 0 0" TAB
-		"1 1 1 1 0" TAB
+		"0 1 1 1 1" TAB
 		"0 0 0 0 0" TAB
 		"0 0 0 0 0";
 		mino[1, 3] = 
@@ -260,52 +167,52 @@ new SimGroup(MissionGroup) {
 		
 		mino[2, 0] = 
 		"0 0 0 0 0" TAB
+		"0 0 0 1 0" TAB
+		"0 1 1 1 0" TAB
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0";
+		mino[2, 1] = 
+		"0 0 0 0 0" TAB
 		"0 0 1 0 0" TAB
 		"0 0 1 0 0" TAB
 		"0 0 1 1 0" TAB
 		"0 0 0 0 0";
-		mino[2, 1] = 
+		mino[2, 2] = 
 		"0 0 0 0 0" TAB
 		"0 0 0 0 0" TAB
 		"0 1 1 1 0" TAB
 		"0 1 0 0 0" TAB
 		"0 0 0 0 0";
-		mino[2, 2] = 
+		mino[2, 3] = 
 		"0 0 0 0 0" TAB
 		"0 1 1 0 0" TAB
 		"0 0 1 0 0" TAB
 		"0 0 1 0 0" TAB
-		"0 0 0 0 0";
-		mino[2, 3] = 
-		"0 0 0 0 0" TAB
-		"0 0 0 1 0" TAB
-		"0 1 1 1 0" TAB
-		"0 0 0 0 0" TAB
 		"0 0 0 0 0";
 		
 		mino[3, 0] = 
 		"0 0 0 0 0" TAB
-		"0 0 1 0 0" TAB
-		"0 0 1 0 0" TAB
-		"0 1 1 0 0" TAB
-		"0 0 0 0 0";
-		mino[3, 1] = 
-		"0 0 0 0 0" TAB
 		"0 1 0 0 0" TAB
 		"0 1 1 1 0" TAB
 		"0 0 0 0 0" TAB
 		"0 0 0 0 0";
-		mino[3, 2] = 
+		mino[3, 1] = 
 		"0 0 0 0 0" TAB
 		"0 0 1 1 0" TAB
 		"0 0 1 0 0" TAB
 		"0 0 1 0 0" TAB
 		"0 0 0 0 0";
-		mino[3, 3] = 
+		mino[3, 2] = 
 		"0 0 0 0 0" TAB
 		"0 0 0 0 0" TAB
 		"0 1 1 1 0" TAB
 		"0 0 0 1 0" TAB
+		"0 0 0 0 0";
+		mino[3, 3] = 
+		"0 0 0 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 1 0 0" TAB
+		"0 1 1 0 0" TAB
 		"0 0 0 0 0";
 		
 		mino[4, 0] = 
@@ -335,78 +242,96 @@ new SimGroup(MissionGroup) {
 		
 		mino[5, 0] = 
 		"0 0 0 0 0" TAB
+		"0 0 1 1 0" TAB
+		"0 1 1 0 0" TAB
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0";
+		mino[5, 1] = 
+		"0 0 0 0 0" TAB
 		"0 0 1 0 0" TAB
 		"0 0 1 1 0" TAB
 		"0 0 0 1 0" TAB
 		"0 0 0 0 0";
-		mino[5, 1] = 
+		mino[5, 2] = 
 		"0 0 0 0 0" TAB
 		"0 0 0 0 0" TAB
 		"0 0 1 1 0" TAB
 		"0 1 1 0 0" TAB
 		"0 0 0 0 0";
-		mino[5, 2] = 
+		mino[5, 3] = 
 		"0 0 0 0 0" TAB
 		"0 1 0 0 0" TAB
 		"0 1 1 0 0" TAB
 		"0 0 1 0 0" TAB
-		"0 0 0 0 0";
-		mino[5, 3] = 
-		"0 0 0 0 0" TAB
-		"0 0 1 1 0" TAB
-		"0 1 1 0 0" TAB
-		"0 0 0 0 0" TAB
 		"0 0 0 0 0";
 		
 		mino[6, 0] = 
 		"0 0 0 0 0" TAB
+		"0 1 1 0 0" TAB
+		"0 0 1 1 0" TAB
+		"0 0 0 0 0" TAB
+		"0 0 0 0 0";
+		mino[6, 1] = 
+		"0 0 0 0 0" TAB
 		"0 0 0 1 0" TAB
 		"0 0 1 1 0" TAB
 		"0 0 1 0 0" TAB
 		"0 0 0 0 0";
-		mino[6, 1] = 
+		mino[6, 2] = 
 		"0 0 0 0 0" TAB
 		"0 0 0 0 0" TAB
 		"0 1 1 0 0" TAB
 		"0 0 1 1 0" TAB
 		"0 0 0 0 0";
-		mino[6, 2] = 
+		mino[6, 3] = 
 		"0 0 0 0 0" TAB
 		"0 0 1 0 0" TAB
 		"0 1 1 0 0" TAB
 		"0 1 0 0 0" TAB
-		"0 0 0 0 0";
-		mino[6, 3] = 
-		"0 0 0 0 0" TAB
-		"0 1 1 0 0" TAB
-		"0 0 1 1 0" TAB
-		"0 0 0 0 0" TAB
 		"0 0 0 0 0";
 
 		mino[7, 0] = 
 		"0 0 0 0 0" TAB
 		"0 0 1 0 0" TAB
-		"0 0 1 1 0" TAB
-		"0 0 1 0 0" TAB
+		"0 1 1 1 0" TAB
+		"0 0 0 0 0" TAB
 		"0 0 0 0 0";
 		mino[7, 1] = 
 		"0 0 0 0 0" TAB
-		"0 0 0 0 0" TAB
-		"0 1 1 1 0" TAB
+		"0 0 1 0 0" TAB
+		"0 0 1 1 0" TAB
 		"0 0 1 0 0" TAB
 		"0 0 0 0 0";
 		mino[7, 2] = 
 		"0 0 0 0 0" TAB
-		"0 0 1 0 0" TAB
-		"0 1 1 0 0" TAB
+		"0 0 0 0 0" TAB
+		"0 1 1 1 0" TAB
 		"0 0 1 0 0" TAB
 		"0 0 0 0 0";
 		mino[7, 3] = 
 		"0 0 0 0 0" TAB
 		"0 0 1 0 0" TAB
-		"0 1 1 1 0" TAB
-		"0 0 0 0 0" TAB
+		"0 1 1 0 0" TAB
+		"0 0 1 0 0" TAB
 		"0 0 0 0 0";
+
+		SRSKick_Normal[0, 1] = "0 0" TAB "-1 0" TAB "-1 1"  TAB "0 -2" TAB "-1 -2";
+		SRSKick_Normal[1, 0] = "0 0" TAB "1 0"  TAB "1 -1"  TAB "0 2"  TAB "1 2";
+		SRSKick_Normal[1, 2] = "0 0" TAB "1 0"  TAB "1 -1"  TAB "0 2"  TAB "1 2";
+		SRSKick_Normal[2, 1] = "0 0" TAB "-1 0" TAB "-1 1"  TAB "0 -2" TAB "-1 -2";
+		SRSKick_Normal[2, 3] = "0 0" TAB "1 0"  TAB "1 1"   TAB "0 -2" TAB "1 -2";
+		SRSKick_Normal[3, 2] = "0 0" TAB "-1 0" TAB "-1 -1" TAB "0 2"  TAB "-1 2";
+		SRSKick_Normal[3, 0] = "0 0" TAB "-1 0" TAB "-1 -1" TAB "0 2"  TAB "-1 2";
+		SRSKick_Normal[0, 3] = "0 0" TAB "1 0"  TAB "1 1"   TAB "0 -2" TAB "1 -2";
+
+		SRSKick_I[0, 1] = "0 0" TAB  "-2 0" TAB  "1 0" TAB "-2 -1" TAB "1 2";
+		SRSKick_I[1, 0] = "0 0" TAB  "2 0"  TAB "-1 0" TAB "2 1"   TAB "-1 -2";
+		SRSKick_I[1, 2] = "0 0" TAB  "-1 0" TAB  "2 0" TAB "-1 2"  TAB "2 -1";
+		SRSKick_I[2, 1] = "0 0" TAB  "1 0"  TAB "-2 0" TAB "1 -2"  TAB "-2 1";
+		SRSKick_I[2, 3] = "0 0" TAB  "2 0"  TAB "-1 0" TAB "2 1"   TAB "-1 -2";
+		SRSKick_I[3, 2] = "0 0" TAB  "-2 0" TAB  "1 0" TAB "-2 -1" TAB "1 2";
+		SRSKick_I[3, 0] = "0 0" TAB  "1 0"  TAB "-2 0" TAB "1 -2"  TAB "-2 1";
+		SRSKick_I[0, 3] = "0 0" TAB  "-1 0" TAB  "2 0" TAB "-1 2"  TAB "2 -1";
 	};
 	new SimGroup(PathNodeGroup) {
 		new StaticShape(CameraPath1) {
