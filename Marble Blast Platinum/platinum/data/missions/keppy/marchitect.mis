@@ -84,6 +84,8 @@ function clientCbOnServerLeave() {
 	Marchitect.leave();
 }
 
+%itemID = -1;
+
 // -----------------Mission Objects-----------------
 
 new SimGroup(MissionGroup) {
@@ -129,58 +131,58 @@ new SimGroup(MissionGroup) {
 	
 	new SimGroup(MarchitectGroup) {
 		new SimGroup(MarchitectMines) {
-			new StaticShape() { dataBlock = "LandMine"; };
-			new StaticShape() { dataBlock = "LandMine"; };
-			new StaticShape() { dataBlock = "LandMine"; };
-			new StaticShape() { dataBlock = "LandMine"; };
-			new StaticShape() { dataBlock = "LandMine"; };
+			new StaticShape() { dataBlock = "LandMine"; mID = %itemID++; };
+			new StaticShape() { dataBlock = "LandMine"; mID = %itemID++; };
+			new StaticShape() { dataBlock = "LandMine"; mID = %itemID++; };
+			new StaticShape() { dataBlock = "LandMine"; mID = %itemID++; };
+			new StaticShape() { dataBlock = "LandMine"; mID = %itemID++; };
 		};
-			new SimGroup(MarchitectTrapdoors) {
-			new StaticShape() { dataBlock = "TrapDoor"; };
-			new StaticShape() { dataBlock = "TrapDoor"; };
-			new StaticShape() { dataBlock = "TrapDoor"; };
+		new SimGroup(MarchitectTrapdoors) {
+			new StaticShape() { dataBlock = "TrapDoor"; mID = %itemID++; };
+			new StaticShape() { dataBlock = "TrapDoor"; mID = %itemID++; };
+			new StaticShape() { dataBlock = "TrapDoor"; mID = %itemID++; };
 		};
-			new SimGroup(MarchitectTriBumpers) {
-			new StaticShape() { dataBlock = "TriangleBumper"; };
-			new StaticShape() { dataBlock = "TriangleBumper"; };
-			new StaticShape() { dataBlock = "TriangleBumper"; };
+		new SimGroup(MarchitectTriBumpers) {
+			new StaticShape() { dataBlock = "TriangleBumper"; mID = %itemID++; };
+			new StaticShape() { dataBlock = "TriangleBumper"; mID = %itemID++; };
+			new StaticShape() { dataBlock = "TriangleBumper"; mID = %itemID++; };
 		};
 		new SimGroup(MarchitectRoundBumpers) {
-			new StaticShape() { dataBlock = "RoundBumper"; };
-			new StaticShape() { dataBlock = "RoundBumper"; };
-			new StaticShape() { dataBlock = "RoundBumper"; };
-			new StaticShape() { dataBlock = "RoundBumper"; };
-			new StaticShape() { dataBlock = "RoundBumper"; };
+			new StaticShape() { dataBlock = "RoundBumper"; mID = %itemID++; };
+			new StaticShape() { dataBlock = "RoundBumper"; mID = %itemID++; };
+			new StaticShape() { dataBlock = "RoundBumper"; mID = %itemID++; };
+			new StaticShape() { dataBlock = "RoundBumper"; mID = %itemID++; };
+			new StaticShape() { dataBlock = "RoundBumper"; mID = %itemID++; };
 		};
 		new SimGroup(MarchitectFans) {
-			new StaticShape() { dataBlock = "DuctFan"; powerOn = 0; };
-			new StaticShape() { dataBlock = "DuctFan"; powerOn = 0; };
-			new StaticShape() { dataBlock = "DuctFan"; powerOn = 0; };
+			new StaticShape() { dataBlock = "DuctFan"; powerOn = 0; mID = %itemID++; };
+			new StaticShape() { dataBlock = "DuctFan"; powerOn = 0; mID = %itemID++; };
+			new StaticShape() { dataBlock = "DuctFan"; powerOn = 0; mID = %itemID++; };
 		};
 		new SimGroup(MarchitectSigns) {
-			new StaticShape() { dataBlock = "SignPlainRight"; };
-			new StaticShape() { dataBlock = "SignPlainLeft"; };
-			new StaticShape() { dataBlock = "SignPlainUp"; };
-			new StaticShape() { dataBlock = "SignPlainDown"; };
+			new StaticShape() { dataBlock = "SignPlainRight"; mID = %itemID++; };
+			new StaticShape() { dataBlock = "SignPlainLeft";  mID = %itemID++; };
+			new StaticShape() { dataBlock = "SignPlainUp";    mID = %itemID++; };
+			new StaticShape() { dataBlock = "SignPlainDown";  mID = %itemID++; };
 		};
 		new SimGroup(MarchitectAntiGrav) {
-			new Item() { dataBlock = "AntiGravityItem"; collideable = 0; static = 1; rotate = 1; };
-			new Item() { dataBlock = "AntiGravityItem"; collideable = 0; static = 1; rotate = 1; };
-			new Item() { dataBlock = "AntiGravityItem"; collideable = 0; static = 1; rotate = 1; };
-			new Item() { dataBlock = "AntiGravityItem"; collideable = 0; static = 1; rotate = 1; };
+			new Item() { dataBlock = "AntiGravityItem"; collideable = 0; static = 1; rotate = 1; mID = %itemID++; };
+			new Item() { dataBlock = "AntiGravityItem"; collideable = 0; static = 1; rotate = 1; mID = %itemID++; };
+			new Item() { dataBlock = "AntiGravityItem"; collideable = 0; static = 1; rotate = 1; mID = %itemID++; };
+			new Item() { dataBlock = "AntiGravityItem"; collideable = 0; static = 1; rotate = 1; mID = %itemID++; };
 		};
 		new SimGroup(MarchitectPowerups) {
-			new Item() { dataBlock = "ShockAbsorberItem"; collideable = 0; static = 1; rotate = 1; };
-			new Item() { dataBlock = "SuperSpeedItem";	collideable = 0; static = 1; rotate = 1; };
-			new Item() { dataBlock = "SuperBounceItem";   collideable = 0; static = 1; rotate = 1; };
-			new Item() { dataBlock = "SuperJumpItem";	 collideable = 0; static = 1; rotate = 1; };
-			new Item() { dataBlock = "HelicopterItem";	collideable = 0; static = 1; rotate = 1; };
+			new Item() { dataBlock = "ShockAbsorberItem"; collideable = 0; static = 1; rotate = 1; mID = %itemID++; };
+			new Item() { dataBlock = "SuperSpeedItem";	  collideable = 0; static = 1; rotate = 1; mID = %itemID++; };
+			new Item() { dataBlock = "SuperBounceItem";   collideable = 0; static = 1; rotate = 1; mID = %itemID++; };
+			new Item() { dataBlock = "SuperJumpItem";	  collideable = 0; static = 1; rotate = 1; mID = %itemID++; };
+			new Item() { dataBlock = "HelicopterItem";	  collideable = 0; static = 1; rotate = 1; mID = %itemID++; };
 		};
 		new SimGroup(MarchitectInteriors1) {
-			new InteriorInstance() { interiorFile = "platinum/data/interiors_mbg/custom/marchitect/neutral_1x1.dif"; };
-			new InteriorInstance() { interiorFile = "platinum/data/interiors_mbg/custom/marchitect/neutral4_1x1.dif"; };
-			new InteriorInstance() { interiorFile = "platinum/data/interiors_mbg/custom/marchitect/warm_1x1.dif"; };
-			new InteriorInstance() { interiorFile = "platinum/data/interiors_mbg/custom/marchitect/warm1_1x1.dif"; };
+			new InteriorInstance() { interiorFile = "platinum/data/interiors_mbg/custom/marchitect/neutral_1x1.dif";  mID = %itemID++; };
+			new InteriorInstance() { interiorFile = "platinum/data/interiors_mbg/custom/marchitect/neutral4_1x1.dif"; mID = %itemID++; };
+			new InteriorInstance() { interiorFile = "platinum/data/interiors_mbg/custom/marchitect/warm_1x1.dif";     mID = %itemID++; };
+			new InteriorInstance() { interiorFile = "platinum/data/interiors_mbg/custom/marchitect/warm1_1x1.dif";    mID = %itemID++; };
 		};
 		//new SimGroup(MarchitectInteriors2) {
 		//  new InteriorInstance() { interiorFile = "platinum/data/interiors_mbg/custom/marchitect/space_2x2.dif"; };

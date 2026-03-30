@@ -44,6 +44,13 @@
 
 // Gem which stays behind the camera
 
+// Colmesh maze
+
+// Tile which lowers into a maze inside of the interior
+
+// Actual finish should just be difficult to find
+// Maybe a secret tile to grab powerups
+
 //i'm creating a marble blast level that's disguised as the first training level, but it actually keeps doing stuff to challenge or "troll" the player:
 //1. A gem spawns behind you right as you get to the finish, preventing you from finishing since you have to go collect it.
 //2. Another gem spawns when you collect that one, behind you assuming that your camera was facing away from it.
@@ -497,7 +504,7 @@ function KeppyLTR::updateBumpers(%this, %group) {
 //	%this.updateGemSpace();
 //}
 
-function KeppyLTR::updateGemSpace(%this, %group) {
+function KeppyLTR::updateGemSpace(%this, %group) { // TODO play a noise
 	if(!isObject(%group))
 		return;
 		

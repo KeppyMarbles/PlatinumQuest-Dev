@@ -33,25 +33,26 @@ datablock ParticleData(GemParticlePlatinumTetris : GemParticlePlatinum)        {
 datablock ParticleEmitterData(GemEmitterPlatinumTetris : GemEmitterPlatinum)   { particles = "GemParticlePlatinumTetris"; };
 datablock ParticleData(GemParticleYellowTetris : GemParticleYellow)            { sizes[0] = 5; };
 datablock ParticleEmitterData(GemEmitterYellowTetris : GemEmitterYellow)       { particles = "GemParticleYellowTetris"; };
-datablock ParticleData(GemParticlePurpleTetris : GemParticlePurple)            { sizes[0] = 5;};
+datablock ParticleData(GemParticlePurpleTetris : GemParticlePurple)            { sizes[0] = 5; };
 datablock ParticleEmitterData(GemEmitterPurpleTetris : GemEmitterPurple)       { particles = "GemParticlePurpleTetris"; };
-datablock ParticleData(GemParticleOrangeTetris : GemParticleOrange)            { sizes[0] = 5;};
+datablock ParticleData(GemParticleOrangeTetris : GemParticleOrange)            { sizes[0] = 5; };
 datablock ParticleEmitterData(GemEmitterOrangeTetris : GemEmitterOrange)       { particles = "GemParticleOrangeTetris"; };
-datablock ParticleData(GemParticlePinkTetris : GemParticlePink)                { sizes[0] = 5;};
+datablock ParticleData(GemParticlePinkTetris : GemParticlePink)                { sizes[0] = 5; };
 datablock ParticleEmitterData(GemEmitterPinkTetris : GemEmitterPink)           { particles = "GemParticlePinkTetris"; };
-datablock ParticleData(GemParticleTurquoiseTetris : GemParticleTurquoise)      { sizes[0] = 5;};
+datablock ParticleData(GemParticleTurquoiseTetris : GemParticleTurquoise)      { sizes[0] = 5; };
 datablock ParticleEmitterData(GemEmitterTurquoiseTetris : GemEmitterTurquoise) { particles = "GemParticleTurquoiseTetris"; };
 
 datablock ParticleData(TetrisBounceParticle : BounceParticle) { 
-	sizes[0] = 0.75; 
-	sizes[1] = 0.75; 
-	sizes[2] = 0.75; 
+	sizes[0] = 0.75;
+	sizes[1] = 0.75;
+	sizes[2] = 0.75;
 };
 datablock ParticleEmitterData(TetrisBounceEmitter : MarbleBounceEmitter) { particles = "TetrisBounceParticle"; };
 
 //todo: allow spam
 //TODO the marble moves now in freecam, we'll need to freeze it or get the new camera transform
 //TODO change on finishing
+//TODO we may need to (smoothly) change user FOV
 function KeppyMarbletris::swap(%this) {
 	debug("Switching mode");
 	if(isEventPending(%this.cameraSch))
@@ -68,7 +69,7 @@ function KeppyMarbletris::swap(%this) {
 		%this.cameraSch = LocalClientConnection.camera.schedule(marbletrisCameraPath1.timeToNext, "moveOnPath", "sillyPath");
 		//localClientConnection.camera.schedule(marbletrisCameraPath1.timeToNext, "cancelMoving");
 		%this.lowerCTLoop();
-		DT.hide(false);
+		%this.dropTetrimino.hide(false);
 	}
 	else {
 		debug("Switching to marble mode");
@@ -84,12 +85,8 @@ function KeppyMarbletris::swap(%this) {
 		LocalClientConnection.schedule(marbletrisCameraPath2.timeToNext, "setToggleCamera", false); // TODO cancel this
 		%this.cameraSch = LocalClientConnection.camera.schedule(marbletrisCameraPath1.timeToNext, "cancelMoving");
 		//LocalClientConnection.schedule(marbletrisCameraPath1.timeToNext, "freezeMarble", false);
-		DT.hide(true);
+		%this.dropTetrimino.hide(true);
 	}
-}
-
-function clientCbOnRespawn() {
-	Marbletris.onRespawn();
 }
 
 function SimObject::setPosition(%this, %pos) {
@@ -122,15 +119,15 @@ function debug(%text) {
 		echo("DEBUG:" SPC %text);
 }
 
-function CurrentTetrimino::holdLower(%this) {
+function KeppyMarbletris::holdLower(%this) {
 	debug("Holding lower CT");
-	%this.lower(%user);
-	%this.lowerSchedule = %this.schedule(50, "holdLower");
-	Marbletris.playSnapSfx();
+	%this.lowerActiveMino();
+	%this.currentTetrimino.lowerSchedule = %this.schedule(50, "holdLower");
+	%this.playSnapSfx();
 }
 
 function MarbletrisScroll(%val) {
-	CT.rotate(%val / mAbs(%val));
+	Marbletris.currentTetrimino.rotate(%val / mAbs(%val));
 }
 
 function MarbletrisX(%val) {
@@ -154,20 +151,20 @@ function MarbletrisX(%val) {
 
 // -----------------Start-----------------
 
-function KeppyMarbletris::onRespawn(%this) {
-	debug("Called Marbletris onRespawn");
+function KeppyMarbletris::onMissionReset(%this) {
+	debug("Resetting script");
+
 	$Game::GemCount = 999; // todo, use actual gem count, but only finish if board is done
+
 	TetrisControl.pop();
 	MarbletrisControl.push();
+
 	MarbletrisObjects.clear();
 	MarbletrisGems.clear();
-	%this = %this.init();
-	%this.next();
-}
+	MarbletrisTetriminos.clear();
 
-function KeppyMarbletris::init(%this) { // TODO onMissionReset
-	debug("Resetting script");
 	%this.delete();
+
 	%this = new ScriptObject(Marbletris) {
 		class = "KeppyMarbletris";
 		//fallDelay = 500;
@@ -175,8 +172,35 @@ function KeppyMarbletris::init(%this) { // TODO onMissionReset
 		level = 1;
 		gemLevelRequirement = 10;
 	};
+
+	%this.currentTetrimino = new ScriptObject() { 
+		superClass = "Tetrimino";
+		class = "CurrentTetrimino";
+		//game = %this;
+	};
+	%this.dropTetrimino = new ScriptObject() { 
+		superClass = "Tetrimino";
+		class = "DropTetrimino";
+		//game = %this;
+	};
+	%this.holdTetrimino = new ScriptObject() { 
+		superClass = "Tetrimino";
+		class = "HoldTetrimino";
+		//game = %this;
+	};
+	%this.nextTetrimino = new ScriptObject() { 
+		superClass = "Tetrimino"; 
+		class = "NextTetrimino";
+		//%game = %this;
+	};
+
 	MissionGroup.add(%this);
-	return %this;
+	MarbletrisTetriminos.add(%this.currentTetrimino);
+	MarbletrisTetriminos.add(%this.dropTetrimino);
+	MarbletrisTetriminos.add(%this.holdTetrimino);
+	MarbletrisTetriminos.add(%this.nextTetrimino);
+
+	%this.nextTetrimino();
 }
 
 function KeppyMarbletris::createData(%this) {
@@ -227,13 +251,23 @@ function Tetrimino::clear(%this) {
 			}
 		}
 	}
+	//%this.id = "";
+	%this.data = "";
+	debug("Cleared mino" SPC %this);
+	//%this.row = "";
+	//%this.col = "";
+}
+
+function KeppyMarbletris::spawnMino(%this, %id) {
+    %this.currentTetrimino.create(%id);
+    %this.dropTetrimino.create(%id);
+    %this.updateDropPosition();
 }
 
 function Tetrimino::createStatic(%this, %id, %row, %col) {
-	debug("Creating static tetrimino");
+	debug("Creating static tetrimino for" SPC %this.getName());
 	%this.clear();
 	%this.createBlocks(%id);
-	%this.id = %id;
 	%this.row = %row;
 	%this.col = %col;
 	%this.updateTransform();
@@ -241,13 +275,7 @@ function Tetrimino::createStatic(%this, %id, %row, %col) {
 
 function CurrentTetrimino::create(%this, %id) {
 	debug("Creating current tetrimino");
-	DT.clear();
-	DT.createBlocks(%id);
-	
 	cancel(%this.lockSch);
-	
-	for(%b = DT.start; %b; %b = %b.next)
-		%b.setFadeVal(0.5);
 	
 	%this.createBlocks(%id);
 	%this.placed = false;
@@ -257,11 +285,18 @@ function CurrentTetrimino::create(%this, %id) {
 	%this.rotIndex = 0;
 	%this.held = false;
 	%this.updateTransform();
-	DT.refresh();
+}
+
+function DropTetrimino::create(%this, %id) {
+	%this.clear();
+	%this.createBlocks(%id);
+	for(%b = %this.start; %b; %b = %b.next)
+		%b.setFadeVal(0.5);
 }
 
 function Tetrimino::createBlocks(%this, %id) {
 	debug("Creating blocks for" SPC %this SPC "with id" SPC %id);
+
 	%this.id = %id;
 	%this.data = MissionList.tetriminoData[%id];
 	
@@ -298,7 +333,8 @@ function Tetrimino::createBlocks(%this, %id) {
 }
 
 // TODO show multi next?
-function KeppyMarbletris::next(%this) {
+function KeppyMarbletris::nextTetrimino(%this) {
+	debug("----- Creating next tetrimino -----");
 	if(%this.bagPos < 7)
 		%this.bagPos++;
 	else {
@@ -306,13 +342,12 @@ function KeppyMarbletris::next(%this) {
 		%this.generateSequence();
 	}
 	debug("Updating bagPos to" SPC %this.bagPos);
-
-	CT.create(%this.next[%this.bagPos]);
-	NT.createStatic(%this.next[%this.bagPos+1], 15, 11);
+	%this.spawnMino(%this.next[%this.bagPos]);
+	%this.nextTetrimino.createStatic(%this.next[%this.bagPos+1], 15, 11);
 }
 
 function KeppyMarbletris::lowerCTLoop(%this) {
-	CT.lower();
+	%this.currentTetrimino.lower();
 	cancel(%this.lowerCTSchedule);
 	//%this.lowerCTSchedule = %this.schedule(%this.fallDelay, "lowerCTLoop");
 	if(%this.level > 10)
@@ -337,28 +372,47 @@ function KeppyMarbletris::mouseShiftCT(%this, %val) {
 	%this.shiftVal += %val;
 	// Todo: sensitivity?
 	if(%this.shiftVal < -50)
-		CT.shift(-1);
+		%this.shiftCT(-1);
 	else if (%this.shiftVal > 50)
-		CT.shift(1);
+		%this.shiftCT(1);
+
+	if(%this.shiftVal == 0) {
+		cancel(%this.resetShiftValSch);
+		%this.resetShiftValSch = %this.schedule(500, "resetShiftVal");
+	}
+}
+
+function KeppyMarbletris::resetShiftVal(%this) {
+	%this.shiftVal = 0;
+	debug("Reset shift val");
+}
+
+function KeppyMarbletris::shiftCT(%this, %val) {
+	debug("Shifting CT with val" SPC %val);
+	%this.shiftVal = 0;
+	if(%this.currentTetrimino.shift(%val)) {
+		%this.playSnapSfx();
+		%this.dropTetrimino.update();
+	}
 }
 
 function CurrentTetrimino::shift(%this, %val) {
-	debug("Shifting CT with val" SPC %val);
-	Marbletris.shiftVal = 0;
-	
 	for(%b = %this.start; %b; %b = %b.next) {
+		if(!isObject(%b)) {
+			debug("CT block doesn't exist?");
+			return false;
+		}
 		%nextX = %b.xPos + %val;
 		if(%nextX < 0 || %nextX > 9 || Marbletris.board[%nextX, %b.yPos]) {
 			debug(%b SPC "collided with something");
-			return;
+			return false;
 		}
 	}
 	
 	cancel(%this.lockSch);
 	%this.col += %val;
 	%this.updateTransform();
-	Marbletris.playSnapSfx();
-	DT.refresh();
+	return true;
 }
 
 function Tetrimino::updateTransform(%this) {
@@ -371,42 +425,47 @@ function Tetrimino::updateTransform(%this) {
 	}
 }
 
-function CurrentTetrimino::lower(%this, %user) {
-	debug("Lowering CT");
+function KeppyMarbletris::lowerActiveMino(%this) {
+	//debug("Lowering CT");
+	//if(%this.currentTetrimino.placed) {
+	//	debug("Can't lower placed CT");
+	//	return;
+	//}
 	
-	for(%b = %this.start; %b; %b = %b.next) {
-		if(Marbletris.board[%b.xPos, %b.yPos-1] || %b.yPos-1 < 0) {
-			//cancel(%this.lockSch);
-			echo("placing");
-			%this.lockSch = %this.schedule(500, "place");
+	for(%b = %this.currentTetrimino.start; %b; %b = %b.next) {
+		if(!isObject(%b)) {
+			debug("CT block doesn't exist?");
+			return;
+		}
+		if(%this.board[%b.xPos, %b.yPos-1] || %b.yPos-1 < 0) {
+			debug("Scheduling CT placement");
+			%this.currentTetrimino.lockSch = %this.schedule(500, "placeActiveMino"); //TODO
 			return;
 		}
 	}
 
-	for(%b = %this.start; %b; %b = %b.next) {
+	for(%b = %this.currentTetrimino.start; %b; %b = %b.next) {
 		//debug("Creating trail particle for" SPC %this);
 		spawnEmitter(200, MarbleTrailEmitter, %b.position, false);
 	}
 	
-	%this.row--;
+	%this.currentTetrimino.row--;
+	%this.currentTetrimino.updateTransform();
 	
-	%this.updateTransform();
-	
-	if(%user)
-		%this.dropScore++;
+	//if(%user)
+	//	%this.currentTetrimino.dropScore++;
 }
 
 // -----------------Place Tetrominos-----------------
 
-function DropTetrimino::refresh(%this) {
-	debug("Updating DT");
-	%this.col = CT.col;
-	%this.rotIndex = CT.rotIndex;
-	
+function KeppyMarbletris::updateDropPosition(%this) {
+	%this.dropTetrimino.col = %this.currentTetrimino.col;
+	%this.dropTetrimino.rotIndex = %this.currentTetrimino.rotIndex;
+
 	%minDist = 25;
-	for(%b = CT.start; %b; %b = %b.next) {
+	for(%b = %this.currentTetrimino.start; %b; %b = %b.next) {
 		for(%i = %b.yPos; %i >= -1; %i--) {
-			if(Marbletris.board[%b.xPos, %i] || %i == -1) {
+			if(%this.board[%b.xPos, %i] || %i == -1) {
 				%dist = %b.yPos-%i-1;
 				if(%dist < %minDist)
 					%minDist = %dist;
@@ -414,57 +473,61 @@ function DropTetrimino::refresh(%this) {
 		}
 	}
 	
-	%this.row = CT.row - %minDist;
-	%this.updateTransform();
+	%this.dropTetrimino.row = %this.currentTetrimino.row - %minDist;
+	%this.dropTetrimino.updateTransform();
 }
 
-function CurrentTetrimino::drop(%this) {
-	debug("Dropping CT");
-	
-	%maxX = 0; %minX = 99;
-	for(%b = %this.start; %b; %b = %b.next) {
-		debug("Finding extent of" SPC %b);
-		if(%b.xPos > %maxX)
-			%maxX = %b.xPos;
-		if(%b.xPos < %minX)
-			%minX = %b.xPos;
-	}
-	
-	for(%x = %minX; %x <= %maxX; %x++) {
-		for(%y = DT.row; %y < 20; %y++) {
-			spawnEmitter(200, MarbleTrailEmitter, %x*2 SPC %y*2 SPC 0, false);
-		}
-	}
-	
-	%this.dropScore += (%this.row - DT.row) * 2;
-	%this.row = DT.row;
-	%this.updateTransform();
-	
-	for(%b = %this.start; %b; %b = %b.next) {
-		if(Marbletris.board[%b.xPos, %b.yPos-1] || %b.yPos == 0) {
+function Tetrimino::getHorizontalExtents(%this) {
+    %maxX = 0; %minX = 99;
+    for(%b = %this.start; %b; %b = %b.next) {
+        if(%b.xPos > %maxX) %maxX = %b.xPos;
+        if(%b.xPos < %minX) %minX = %b.xPos;
+    }
+    return %minX SPC %maxX;
+}
+
+function KeppyMarbletris::dropActiveMino(%this) {
+    debug("Dropping active tetrimino");
+
+    // Get the piece-specific bounds (Logic remains in the piece)
+    %bounds = %this.currentTetrimino.getHorizontalExtents();
+    %minX = getWord(%bounds, 0);
+    %maxX = getWord(%bounds, 1);
+
+    // Orchestrate effects using BOTH pieces
+    for(%x = %minX; %x <= %maxX; %x++) {
+        for(%y = %this.dropTetrimino.row; %y < %this.currentTetrimino.row; %y++) {
+            spawnEmitter(200, MarbleTrailEmitter, %x*2 SPC %y*2 SPC 0, false);
+        }
+    }
+
+    // Update scoring and position
+    %this.currentTetrimino.dropScore += (%this.currentTetrimino.row - %this.dropTetrimino.row) * 2;
+    %this.currentTetrimino.row = %dt.row;
+    %this.currentTetrimino.updateTransform();
+
+	for(%b = %this.currentTetrimino.start; %b; %b = %b.next) {
+		if(%this.board[%b.xPos, %b.yPos-1] || %b.yPos == 0) {
 			debug("Creating bounce particle for" SPC %b);
 			spawnEmitter(200, TetrisBounceEmitter, vectorAdd(%b.position, -1 SPC -1 SPC 1), false);
 		}
 	}
-	
-	%this.place();
+
+    %this.placeActiveMino();
 }
 
-function CurrentTetrimino::place(%this) {
+function KeppyMarbletris::placeActiveMino(%this) {
 	debug("Placing CT");
-	if(%this.placed) {
+	if(%this.currentTetrimino.placed) {
 		debug("CT already placed");
 		return;
 	}
-	cancel(%this.lockSch);
-	cancel(%this.lowerSchedule);
+	cancel(%this.currentTetrimino.lockSch);
+	cancel(%this.currentTetrimino.lowerSchedule);
 	
-	%this.placed = true;
-	Marbletris.onTetriminoPlaced(%this);
-}
+	%this.currentTetrimino.placed = true;
 
-function KeppyMarbletris::onTetriminoPlaced(%this, %mino) {
-	for(%b = %mino.start; %b; %b = %b.next)
+	for(%b = %this.currentTetrimino.start; %b; %b = %b.next)
 		%this.board[%b.xPos, %b.yPos] = %b;
 
 	for(%y = 0; %y < 25; %y++) {
@@ -484,13 +547,14 @@ function KeppyMarbletris::onTetriminoPlaced(%this, %mino) {
 	}
 
 	if(%clears $= "") {
-		if(%this.row == 20) {
+		if(%this.currentTetrimino.row >= 20) {
+			
 			cancel(%this.lowerCTSchedule);
 			if(%this.getBoardValue() == 0)
 				endGameSetup();
 		}
 		else
-			%this.next();
+			%this.nextTetrimino();
 		%this.streak = 0;
 		%this.msg = "";
 	}
@@ -504,24 +568,25 @@ function KeppyMarbletris::onTetriminoPlaced(%this, %mino) {
 
 // -----------------Hold Tetrominos-----------------
 
-function CurrentTetrimino::hold(%this) {
-	debug("Holding CT");
-	if(%this.held || %this.id == HT.id)
+function KeppyMarbletris::holdActiveMino(%this) {
+    %ct = %this.currentTetrimino;
+    %ht = %this.holdTetrimino;
+
+    if (%this.currentTetrimino.held || %this.currentTetrimino.id == %this.holdTetrimino.id) 
 		return;
-	%this.clear();
 
-	%id = %this.id;
-	
-	if(HT.id)
-		%this.create(HT.id);
-	else
-		Marbletris.next();
-	
-	%this.held = true;
-	HT.createStatic(%id, 15, -6);
-	LocalClientConnection.play2D("swapSfx");
+    %oldID = %this.currentTetrimino.id;
+    %this.currentTetrimino.clear();
+
+    if (%this.holdTetrimino.id)
+        %this.spawnMino(%this.holdTetrimino.id);
+    else
+        %this.nextTetrimino(); 
+
+    %this.currentTetrimino.held = true;
+    %ht.createStatic(%oldID, 15, -6);
+    LocalClientConnection.play2D("swapSfx");
 }
-
 // -----------------Rotate Tetrominos-----------------
 
 function Tetrimino::setRotation(%this, %rot) {
@@ -563,7 +628,7 @@ function Tetrimino::checkCollision(%this, %rotIndex, %colOffset, %rowOffset) {
 	return false; 
 }
 
-function CurrentTetrimino::rotate(%this, %val) { //TODO bug with J piece
+function CurrentTetrimino::rotate(%this, %val) {
 	debug("Rotating" SPC %this SPC "with val" SPC %val);
 	%nextRotIndex = (((%this.rotIndex + %val) % 4) + 4) % 4;
 	debug("From" SPC %this.rotIndex SPC "to" SPC %nextRotIndex SPC "on id" SPC %this.id);
@@ -602,8 +667,8 @@ function CurrentTetrimino::rotate(%this, %val) { //TODO bug with J piece
 	cancel(%this.lockSch);
 	
 	%this.setRotation(%nextRotIndex);
-	DT.setRotation(%nextRotIndex);
-	DT.refresh();
+	Marbletris.dropTetrimino.setRotation(%nextRotIndex);
+	Marbletris.updateDropPosition();
 	
 	alxPlay(tickSfx2);
 }
@@ -671,6 +736,7 @@ function KeppyMarbletris::destroyBoard(%this) {
 	
 	%this.b2b = false;
 	%this.streak = 0;
+	%this.updateDropPosition();
 }
 
 function KeppyMarbletris::isCleared(%this) {
@@ -714,14 +780,14 @@ function KeppyMarbletris::clearRows(%this, %rows) {
 			//%this.board[%x, %row] = "";
 		}
 	}
-	DT.clear(); // need?
+	%this.dropTetrimino.clear(); // need?
 	
 	%this.pClear = %this.isCleared();
 
 	// Todo: Cancel and do this immediately if there's an input
 	%dropDelay = 400;
 	%this.schedule(%dropDelay, "dropBoard", %rows);
-	%this.schedule(%dropDelay+10, "next");
+	%this.schedule(%dropDelay+10, "nextTetrimino");
 	
 	%this.lines += %rowCount;
 	$pref::KeppyMarbletris::linesCleared += %rowCount;
@@ -761,9 +827,9 @@ function KeppyMarbletris::clearRows(%this, %rows) {
 			%score = 800;
 			if(%this.pClear) {
 				if(%this.b2b)
-				%score += 3200;
+					%score += 3200;
 				else
-				%score += 2000;
+					%score += 2000;
 			}
 			%tt = true;
 	}
@@ -803,7 +869,7 @@ function KeppyMarbletris::clearRows(%this, %rows) {
 	
 	//
 	
-	echo("Score:" SPC %score);
+	debug("Score:" SPC %score);
 	
 	%gems = "";
 	while(%score > 1000) {
@@ -819,7 +885,7 @@ function KeppyMarbletris::clearRows(%this, %rows) {
 	//	%gems = AddWord(%gems, MissionList.timeTravelID);
 	//}
 
-	echo("Gems:" SPC %gems);
+	debug("Gems:" SPC %gems);
 	%this.createGems(%gems);
 	
 	//LocalClientConnection.incBonusTime(%rowCount * 500);
@@ -838,7 +904,8 @@ function KeppyMarbletris::getBoardMaxHeight(%this) {
 }
 
 function KeppyMarbletris::createGems(%this, %gems) {
-	%maxHeight = max(4, %this.getBoardMaxHeight()); // TODO sub cleared rows?
+	//%maxHeight = max(4, %this.getBoardMaxHeight()); // TODO sub cleared rows?
+	%maxHeight = 20;
 	// TODO could also just base max height on current level. I think always having a low height would make the game boring.
 	%availableSlots = "";
 	for(%y = 0; %y < 25; %y++) {
@@ -894,16 +961,18 @@ function KeppyMarbletris::createGem(%this, %num, %x, %y) {
 	%gem._huntDatablock = "gemItem" @ %color;
 	%this.boardGems[%x, %y] = %gem;
 	if(%this.getBoardValue() > (%this.gemLevelRequirement - PlayGui.gemCount)) {
-		if(!%this.messagedReady)
+		if(!%this.messagedReady) {
 			messageClient(LocalClientConnection, 'MsgItemPickup', "Level Up Ready");
+			LocalClientConnection.playPitchedSound("gotalldiamonds"); // TODO only play one sound
+		}
 		%this.messagedReady = true;
 	}
 }
 
 function KeppyMarbletris::getBoardValue(%this) {
 	%count = 0;
-	for(%i = 0; %i < MarbletrisGems.getCount(); %i++) {
-		%count += MarbletrisGems.getObject(%i)._huntDatablock.huntExtraValue;
+	for(%i = 0; (%gem = MarbletrisGems.getObject(%i)) != -1; %i++) {
+		%count += %gem._huntDatablock.huntExtraValue+1;
 	}
 	return %count;
 }
@@ -912,6 +981,7 @@ function KeppyMarbletris::levelUp(%this) {
 	%this.level += 1;
 	%this.gemLevelRequirement += %this.level * 10;
 	messageClient(LocalClientConnection, 'MsgItemPickup', "Level Up!"); // TODO sound
+	LocalClientConnection.playPitchedSound("gotalldiamonds");
 	%this.messagedReady = false;
 }
 
@@ -921,7 +991,8 @@ function KeppyMarbletris::onGemCollected(%this, %gem) {
 	//echo(%this.gemLevelRequirement);
 	%this.boardGems[%gem.x, %gem.y] = "";
 	//%this.availableGemSlots = AddField(%this.availableGemSlots, %gem.position);
-	if (PlayGui.gemCount > %this.gemLevelRequirement) { // todo show requirement
+	debug("Gem count:" SPC PlayGui.gemCount SPC "Gem requirement:" SPC %this.gemLevelRequirement);
+	if (PlayGui.gemCount >= %this.gemLevelRequirement) { // todo show requirement
 		%this.levelUp();
 	}
 	%gem.delete();
@@ -958,7 +1029,7 @@ package MarbletrisPackage {
 		input_escapeFromGame(%val);
 		
 		if(!LocalClientConnection.playing)
-		return;
+			return;
 	}
 	function useBlast(%val) {
 		echo("blasting");
@@ -992,7 +1063,7 @@ package MarbletrisPackage {
 function clientCbOnServerLeave() {
 	//GemItemPink.huntExtraValue = 0;
 	//GemItemBlack.huntExtraValue = -2;
-	MarbletrisControl.pop();
-	TetrisControl.pop();
+	//MarbletrisControl.pop();
+	//TetrisControl.pop();
 	deactivatePackage(MarbletrisPackage);
 }

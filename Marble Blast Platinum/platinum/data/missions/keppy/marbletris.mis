@@ -57,18 +57,17 @@
 // Time travel tetris, 30m
 // Looking back at it after a long while. 30m
 // Random stuff, 4h
-// SRS and max gem height
+// SRS and max gem height, 3h?
+// Trying to refactor stuff, 3h
 
 // Drops per second to reach level: (10*10*level/4)/(60*2+30)
 
 // Todo
 
-// Fix kick for line piece
 // Detections for t spins
 // Check other fade platforms to see if they're aligned
 // Add lock delay
 // Display level, lines cleared, gems created
-// Use marble to break unwanted blocks?
 // More particles for gems, try new sounds
 // Fix next
 // Cancel schedules
@@ -78,12 +77,24 @@
 // Add stats (prefs). Include max score, max lines cleared, max streak, max move score, total lines cleared.
 // Allow camera switch spam
 // Fix initial CT pos
-// Level Up Ready notification
 // Hide pieces on pause
 // Marble dummy?
 // Place superjumps on bottom of board clearing lines
-// Derive new datablocks for gems/particles
 // Put gems near bottom on early stages, further in increasing level? Or do it the highest that the player has built or is currently built?
+// Rename dropTetrimino to ghostTetrimino?
+
+// ---- BUGS ----
+// - CT sometimes breaks and softlocks after clearing lines
+// - CT gets stuck if you stack stuff at the top then clear the board
+// - Level up quickly requires way too little clears
+// - Occassionally calling clear() without the mino blocks existing
+// - Next tetrimino doesn't show if CT is the last in bag
+// - Spawn location of CT is wrong
+// - PlayGui.gemCount using stale value
+// - low tps?
+// - Lowering schedules a placement which ends up referring to a different tetrimino
+
+// --------------
 
 // Ideas
 // Lay mines on the board?
@@ -108,25 +119,10 @@ new SimGroup(MissionGroup) {
 	new ActionMap(TetrisControl);
 	
 	new ScriptObject(Marbletris) { 
-		class = "KeppyMarbletris"; 
+		class = "KeppyMarbletris";
 	};
-	new ScriptObject(CT) { 
-		superClass = "Tetrimino"; 
-		class = "CurrentTetrimino"; 
-	};
-	new ScriptObject(DT) { 
-		superClass = "Tetrimino"; 
-		class = "DropTetrimino"; 
-	};
-	new ScriptObject(HT) { 
-		superClass = "Tetrimino"; 
-		class = "HoldTetrimino"; 
-	};
-	new ScriptObject(NT) { 
-		superClass = "Tetrimino"; 
-		class = "NextTetrimino"; 
-	};
-	
+
+	new SimGroup(MarbletrisTetriminos);
 	new SimGroup(MarbletrisObjects);
 	new SimGroup(MarbletrisGems);
 	
@@ -396,7 +392,7 @@ new SimGroup(MissionGroup) {
 		color = "1.400000 1.200000 0.500000 1.000000";
 		ambient = "0.300000 0.300000 0.400000 1.000000";
 	};
-	new InteriorInstance(board) {
+	new InteriorInstance() {
 		interiorFile = "platinum/data/interiors_mbg/custom/marbletrisRevisited.dif";
 	};
 	new StaticShape(StartPoint) {
@@ -455,16 +451,16 @@ Marbletris.generateSequence();
 MarbletrisControl.bindCmd(keyboard, "q", "Marbletris.swap();", "");
 
 //TetrisControl.bindCmd(keyboard, "down", "CT.lower();", "");
-TetrisControl.bindCmd(keyboard, "d", "CT.shift(1);", "");
-TetrisControl.bindCmd(keyboard, "a", "CT.shift(-1);", "");
+TetrisControl.bindCmd(keyboard, "d", "Marbletris.currentTetrimino.shift(1);", "");
+TetrisControl.bindCmd(keyboard, "a", "Marbletris.currentTetrimino.shift(-1);", "");
 
-TetrisControl.bindCmd(keyboard, "s", "CT.holdLower();", "cancel(CT.lowerSchedule);");
+TetrisControl.bindCmd(keyboard, "s", "Marbletris.currentTetrimino.holdLower();", "cancel(Marbletris.currentTetrimino.lowerSchedule);");
 //TetrisControl.bindCmd(keyboard, "d", "holdshiftCT1(1);", "releaseshiftCT();");
 //TetrisControl.bindCmd(keyboard, "a", "holdshiftCT1(-1);", "releaseshiftCT();");
-TetrisControl.bindCmd(keyboard, "w", "CT.rotate(1);", "");
+TetrisControl.bindCmd(keyboard, "w", "Marbletris.currentTetrimino.rotate(1);", "");
 
-TetrisControl.bindCmd(keyboard, "lshift", "CT.hold();", "");
-TetrisControl.bindCmd(keyboard, "space", "CT.drop();", "");
+TetrisControl.bindCmd(keyboard, "lshift", "Marbletris.currentTetrimino.hold();", "");
+TetrisControl.bindCmd(keyboard, "space", "Marbletris.currentTetrimino.drop();", "");
 //TetrisControl.bindCmd(keyboard, "up", "rotateCT(1);", "");
 
 //TetrisControl.bindCmd(keyboard, "t", "nextCT();", "");
@@ -474,8 +470,6 @@ TetrisControl.bind(mouse, "xaxis", "MarbletrisX");
 TetrisControl.bind(mouse, "yaxis", "");
 //TetrisControl.bindCmd(mouse, "button0", "CT.drop();", "");
 
-TetrisControl.bindCmd(keyboard, "j", "Marbletris.ReloadScript();", "");
-MarbletrisControl.bindCmd(keyboard, "j", "Marbletris.ReloadScript();", "");
 
 //GemItemPink.huntExtraValue = 7; // TODO maybe make a new derived datablock instead
 //GemItemBlack.huntExtraValue = 8;

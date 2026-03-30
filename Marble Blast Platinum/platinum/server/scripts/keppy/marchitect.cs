@@ -58,6 +58,8 @@ function KeppyMarchitect::scroll(%this, %val) {
 // obj positions in rec
 // scaling?
 
+// TODO need to fix level reenter crash
+
 function KeppyMarchitect::InitObjects(%this) {
 	glasses.setFadeVal(0.7);
 	
@@ -135,6 +137,7 @@ function SimObject::MarchitectInit(%this) {
 	%this.setTransform(Marchitect.initTransform);
 	%this.setScale("1 1 1");
 	if(%this.isShape) %this.setFadeVal(1);
+	Marchitect.objects[%this.mID] = %this;
 }
 
 // -----------------Platform-----------------
@@ -389,7 +392,7 @@ function KeppyMarchitect::updateObjectPosition(%this) {
 		%rounded = vectorRound(vectorScale(%position, (1 / %this.gridSize)));
 		%position = vectorScale(%rounded, %this.gridSize);
 		%turn = mRound(%turn / (%this.rotationAngle)) * %this.rotationAngle;
-		// different sound for rotation?
+
 		if(%obj.lastPosition !$= %position)
 			localClientConnection.play3D("snapSfx" @ getRandom(1, 4), %obj.getWorldBoxCenter());
 		if(%obj.lastTurn !$= %turn)
@@ -542,9 +545,26 @@ function KeppyMarchitect::rotateHeldObject(%this, %axis) {
 	localClientConnection.play2D("rotateSfx");
 }
 
+// -----------------Persistence-----------------
 
+function KeppyMarchitect::saveConfiguration(%this, %id) {
+	for(%i = 0; (%obj = MarchitectPlaced.getObject(%i)) != -1; %i++) {
+		%config = AddRecord(%config, %obj.mID TAB %obj.getTransform());
+	}
+	$pref::KeppyMarchitect::config[%id] = %config;
+	export("$pref::*", "~/client/mbpPrefs.cs", False);
+}
 
-
+function KeppyMarchitect::loadConfiguration(%this, %id) {
+	%config = $pref::KeppyMarchitect::config[%id];
+	%count = getRecordCount(%config);
+	for(%i = 0; %i < %count; %i++) {
+		%line = getRecord(%config, %i);
+		%obj = %this.objects[getField(%line, 0)];
+		%obj.setTransform(getField(%line, 1));
+		MarchitectPlaced.add(%obj); // TODO need to reset scale and fade val?
+	}
+}
 
 // -----------------End-----------------
 

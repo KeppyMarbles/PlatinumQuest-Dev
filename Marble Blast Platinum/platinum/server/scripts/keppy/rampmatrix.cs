@@ -27,90 +27,96 @@
 // Higher platforms: can spawn a gyrocopter/shock absorber
 // Middle: super speed
 
+// Maybe add collision to the preview shapes so that you can't get stuck inside the interior
+// Need to increase backtracking. Maybe we could build dead ends if there are branches available.
 
-// create static shapes (all in one file?) to reveal from a long distance before creating at a short distance
+datablock StaticShapeData(MatrixSquare) { shapeFile = "~/data/shapes/custom/matrix/square.dts"; };
+datablock StaticShapeData(MatrixRamp1) { shapeFile = "~/data/shapes/custom/matrix/ramp1.dts"; };
+datablock StaticShapeData(MatrixRamp2) { shapeFile = "~/data/shapes/custom/matrix/ramp2.dts"; };
+datablock StaticShapeData(MatrixRamp3) { shapeFile = "~/data/shapes/custom/matrix/ramp3.dts"; };
+datablock StaticShapeData(MatrixRamp4) { shapeFile = "~/data/shapes/custom/matrix/ramp4.dts"; };
 
-datablock AudioProfile(snapSfx1) {
-	filename = "~/data/sound/custom/keppySnap1.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(snapSfx2) {
-	filename = "~/data/sound/custom/keppySnap2.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(snapSfx3) {
-	filename = "~/data/sound/custom/keppySnap3.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
-datablock AudioProfile(snapSfx4) {
-	filename = "~/data/sound/custom/keppySnap4.wav";
-	description = AudioDefault3d;
-	preload = true;
-};
+function KeppyRamps::onMissionReset(%this) {
+	debug("StartRun: starting run");
+	LocalClientConnection.setPad(false);
+	%this.delete();
+	%this = new ScriptObject(RampMatrix) {
+		class = "KeppyRamps";
+	};
+	MissionGroup.add(%this);
 
-datablock StaticShapeData(MatrixSquare) {
-	shapeFile = "~/data/shapes/custom/matrix/square.dts";
-};
-
-datablock StaticShapeData(MatrixRamp1) {
-	shapeFile = "~/data/shapes/custom/matrix/ramp1.dts";
-};
-
-datablock StaticShapeData(MatrixRamp2) {
-	shapeFile = "~/data/shapes/custom/matrix/ramp2.dts";
-};
-
-datablock StaticShapeData(MatrixRamp3) {
-	shapeFile = "~/data/shapes/custom/matrix/ramp3.dts";
-};
-
-datablock StaticShapeData(MatrixRamp4) {
-	shapeFile = "~/data/shapes/custom/matrix/ramp4.dts";
-};
-
-function opposeDir(%dir) {
-	return %dir < 3 ? %dir + 2 : %dir - 2;
-}
-
-function debug(%str) {
-	if($DEBUG)
-		echo(%str);
-}
-
-function KeppyRamps::remove(%this, %obj) {
-	debug("remove: Removing" SPC %obj);
-	if(isObject(%obj.prev)) {
-		%obj.prev.delete();
-		debug("remove: Removed prev");
-	}
+	MatrixGroup.forEach("%this.clear");
 	
-	if(%obj.connectors) {
-		%obj.connectors.forEach("%this.uncouple");
-		%obj.connectors.delete();
-		debug("remove: Removed connectors");
-	}
+	%this.schedule(500, "createPlatform", "0 0 0", 0);
+	
+	CommandToClient(LocalClientConnection, 'SetGemQuota', 20, 10);
+	ClientMode_quota.shouldUpdateGems();
+	%this.schedule(2000, "tick");
+}
+
+function KeppyRamps::tick(%this) {
+	if($PlayingDemo || $Game::Menu)
+		return;
+
+	%marblePos = $MP::MyMarble.getPosition();
+	%zScale = 3;
+	for(%i = 0; (%obj = PlatformGroup.getObject(%i)) != -1; %i++) { // TODO maybe use distance to connector?
+		%sub = VectorSub(%obj.position, %marblePos);
+		%sub = setWord(%sub, 2, getWord(%sub, 2) * %zScale);
+		%sqDist = VectorDot(%sub, %sub);
 		
-	if(isObject(%obj.item)) {
-		%obj.item.delete();
-		debug("remove: Removed item");
-	}
+		if(%sqDist < 512) {
+			
+			//if(RampMatrix.gems < 20)
+				%obj.connectors.forEach("%this.next");
+		}
 		
-	
-	if(isObject(%obj.endPad)) {
-		%this.endPad = false;
-		%obj.endPad.delete();
-		debug("remove: Removed end pad");
+		if(%obj.prev) {
+			if(%sqDist < 128) {
+				%this.addPlatform(%obj);
+			}
+			
+			if(%sqDist > 1024) {
+				//if(RampMatrix.gems < 20)
+					%this.removePlatform(%obj);
+			}
+		}
 	}
-	
-	%obj.delete();
-	debug("remove: Removed" SPC %obj);
+
+	cancel(%this.tickSch);
+	%this.tickSch = %this.schedule(100, "tick");
 }
 
-function KeppyRamps::CreatePlatform(%this, %pos, %id, %zdir, %pcon) {
-	if(%id) {
+function RampConnector::next(%this) {
+	 // TODO don't build outside a certain bounds?
+	 // TODO don't build if there's already a bunch of gems generated?
+	 // TODO maybe increase the chance of dead ends with higher platform count?
+	if(%this.coupled || %this.skip)
+		return;
+
+	%pos = %this.next[1];
+
+	if(%this.platform.id > 0) // Create square to connect with ramp
+		RampMatrix.createPlatform(%pos, 0, 0, %this);
+	
+	else { // Create ramp to connect with square
+		%id = %this.dir;
+		%zdir = "up";
+		
+		if(getRandom(0, 1)) {
+			%id = opposeDir(%id);
+			%pos = %this.next[-1];
+			%zdir = "down";
+		}
+
+		RampMatrix.createPlatform(%pos, %id, %zdir, %this);
+	}
+}
+
+function KeppyRamps::createPlatform(%this, %pos, %id, %zdir, %pcon) {
+	%connectors = new SimGroup();
+
+	if(%id > 0) {
 		debug("CreatePlatform: Creating ramp");
 		%dir = mAbs(%id);
 		
@@ -129,7 +135,6 @@ function KeppyRamps::CreatePlatform(%this, %pos, %id, %zdir, %pcon) {
 			}
 		}
 		
-		%connectors = new SimGroup();
 		for(%i = 0; %i < 2; %i++) {
 			%connectors.add(new ScriptObject() {
 				class = "RampConnector";
@@ -138,15 +143,12 @@ function KeppyRamps::CreatePlatform(%this, %pos, %id, %zdir, %pcon) {
 				dir = %dir[%i];
 			});
 		}
-		
-
 
 		%interiorFile = "platinum/data/interiors_mbg/matrix/ramp" @ %id @ ".dif";
 		%dataBlock = "MatrixRamp" @ %id;
 	}
 	else {
 		debug("CreatePlatform: Creating square");
-		%connectors = new SimGroup();
 		for(%i = 1; %i <= 4; %i++) {
 			%connectors.add(new ScriptObject() {
 				class = "RampConnector";
@@ -156,8 +158,8 @@ function KeppyRamps::CreatePlatform(%this, %pos, %id, %zdir, %pcon) {
 				dir = %i;
 			});
 		}
-		for(%_ = 0; %_ < getRandom(0, 3); %_++) {
-			%connectors.getObject(getRandom(0, 3)).skip = 1;
+		for(%_ = 0; %_ < 4; %_++) {
+			%connectors.getObject(getRandom(0, 4)).skip = 1;
 		}
 		%interiorFile = "platinum/data/interiors_mbg/matrix/square.dif";
 		%dataBlock = "MatrixSquare";
@@ -171,21 +173,19 @@ function KeppyRamps::CreatePlatform(%this, %pos, %id, %zdir, %pcon) {
 		zdir = %zdir;
 		id = %id;
 		num = %this.squares;
-		
 	};
-	debug("CreatePlatform: Created platform" SPC %platform);
+
 	%platformPrev = new StaticShape() {
 		position = %pos;
 		platform = %platform;
 		dataBlock = %dataBlock;
 	};
 	%platformPrev.setFadeVal(0.5);
-	debug("CreatePlatform: Created preview" SPC %platformPrev);
+
 	%platform.prev = %platformPrev;
 	
-	for(%i = 0; %i < %connectors.getCount(); %i++) {
-		%connector = %connectors.getObject(%i);
-		%connector.platform = %platform;
+	for(%i = 0; (%conn = %connectors.getObject(%i)) != -1; %i++) {
+		%conn.platform = %platform;
 	}
 	
 	%connectors.forEach("%this.couple", %this);
@@ -198,76 +198,173 @@ function KeppyRamps::CreatePlatform(%this, %pos, %id, %zdir, %pcon) {
 	%this.createItem(%platform);
 }
 
-function RampConnector::next(%this) {
-	//debug("next: checking" SPC %this);
-	if(%this.coupled || %this.skip)
+function KeppyRamps::buildTrim(%this, %obj) {
+	debug("BuildTrim: Building trim for" SPC %obj);
+	if(%obj.prev)
 		return;
-	
-	//debug("next: Getting next gen for connector" SPC %this);
-
-	%pos = %this.next[1];
-
-	if(%this.platform.id)
-		RampMatrix.CreatePlatform(%pos, 0, 0, %this);
-	
+	if(%obj.id > 0) {
+		%trim = new InteriorInstance() {
+			position = %obj.position;
+			rotation = "0 0 1" SPC 90 * (%obj.id-1);
+			interiorFile = "platinum/data/interiors_mbg/matrix/trim_ramp.dif";
+		};
+		debug("BuildTrim: Created ramp trim" SPC %trim);
+		TrimGroup.add(%trim);
+	}
 	else {
-		%id = %this.dir;
-		%zdir = "up";
+		for(%i = 0; %i < 4; %i++) {
+			%next = (%i + 1) % 4; 
+			%firstConnector = %obj.connectors.getObject(%i);
+			%secondConnector = %obj.connectors.getObject(%next);
+
+			%rot = "0 0 1" SPC 90 * %i;
+			
+			// Handle Edge Trim (Only build if it doesn't already exist)
+			if(%firstConnector.skip && !%firstConnector.coupled) {
+				if (!isObject(%firstConnector.trim)) {
+					%trim = new InteriorInstance() {
+						position = %obj.position;
+						rotation = %rot;
+						interiorFile = "platinum/data/interiors_mbg/matrix/trim.dif";
+					};
+					debug("BuildTrim: Created edge trim" SPC %trim);
+					%firstConnector.trim = %trim;
+					TrimGroup.add(%trim);
+				}
+			}
+			
+			// Remove existing trim
+			if (isObject(%obj.cornerTrim[%i])) {
+				%obj.cornerTrim[%i].delete();
+			}
+
+			%firstPlat = %firstConnector.coupled.platform;
+			%secondPlat = %secondConnector.coupled.platform;
+
+			%corner1 = (isObject(%firstPlat) && !isObject(%firstPlat.prev)) || %firstConnector.skip;
+			%corner2 = (isObject(%secondPlat) && !isObject(%secondPlat.prev)) || %secondConnector.skip;
+
+			// ONLY build corner if both adjacent platforms exist and are NOT previews
+			//if (isObject(%firstPlat) && !isObject(%firstPlat.prev) &&
+			//    isObject(%secondPlat) && !isObject(%secondPlat.prev)) {
+			if(%corner1 && %corner2) {
+				%firstDir = %this.getRampZDir(%firstPlat, %obj);
+				%secondDir = %this.getRampZDir(%secondPlat, %obj);
+				
+				%trim = new InteriorInstance() {
+					position = %obj.position;
+					rotation = %rot;
+					interiorFile = "platinum/data/interiors_mbg/matrix/trim_" @ %firstDir @ "_" @ %secondDir @ ".dif";
+				};
+				debug("BuildTrim: Created corner trim" SPC %trim);
+				
+				%obj.cornerTrim[%i] = %trim; 
+				TrimGroup.add(%trim);
+			}
+		}
+	}
+	for(%i = 0; %i < %obj.connectors.getCount(); %i++) {
+		%connector = %obj.connectors.getObject(%i);
+		if(%connector.coupled.trim) {
+			debug("BuildTrim: Deleting some trim");
+			//ServerPlay3D(ExplodeMineSfx, %connector.coupled.trim.getWorldBoxCenter());
+			%connector.coupled.trim.delete();
+			
+			%connector.coupled.trim = "";
+		}
+	}
+	debug("BuildTrim: Built trim");
+}
+
+function KeppyRamps::addPlatform(%this, %obj) {
+	debug("AddObject: Adding" SPC %obj);
+	if(!isObject(%obj)) {
+		debug("AddObject: Object was removed");
+		return;
+	}
+	%obj.setScale("1 1 1");
+	%this.platformEffect(%obj.position);
+
+	//if(%obj.explode) {
+	//	ServerPlay3D(ExplodeMineSfx, %obj.explode.getWorldBoxCenter());
+	//	%this.remove(%obj.explode, 1);
+	//}
+
+
+	if(%obj.item)
+		%obj.item.setFadeVal(1);
+	
+	if(%obj.endPad)
+		LocalClientConnection.player.setPad(%obj.endPad);
+	
+	if(%obj.gem) {
+		%this.gems++;
+		echo("gems:" SPC %this.gems);
+	}
 		
-		if(getRandom(0, 1)) {
-			%id = opposeDir(%id);
-			%pos = %this.next[-1];
-			%zdir = "down";
-		}
-		//if(!getRandom(0, 1))
-			%this.CreateSquare(%pos);
-		//else
-		//	RampMatrix.CreatePlatform(%pos, %id, %zdir);
-	}
-}
+	
+	%obj.prev.delete();
+	%obj.prev = "";
 
-function RampConnector::uncouple(%this) {
-	%this.coupled.coupled = false;
-	RampMatrix.connector[%this.pos] = %this.coupled;
-}
+	%this.buildTrim(%obj);
 
-function RampConnector::couple(%this) {
-	%diff_conn = RampMatrix.connector[%this.pos];
-	if(%diff_conn){
-		if(%diff_con != %this) {
-			//if(%diff_conn.coupled) {
-			//	%this.platform.explode = %diff_conn.coupled.platform;
-			//}
-			%diff_conn.coupled = %this;
-			%this.coupled = %diff_conn;
+	if (%obj.id > 0) { // Rebuild connected square trim if this is a ramp
+		for(%i = 0; (%conn = %obj.connectors.getObject(%i)) != -1; %i++) {
+			if (isObject(%conn.coupled) && %conn.coupled.platform.id == 0) {
+				%this.buildTrim(%conn.coupled.platform);
+			}
 		}
 	}
-	else {
-		RampMatrix.connector[%this.pos] = %this;
-	}
+	else
+		%this.squares++;
+
+	debug("AddObject: Added object" SPC %obj);
 }
 
-function KeppyRamps::next(%this, %platform) {
-	//debug("next:" SPC %platform);
-	%platform.connectors.forEach("%this.next");
-}
-
-function TempEmitter(%pos, %type, %life) {
-	debug("TempEmitter: Creating temp emitter");
-	%emitter = new ParticleEmitterNode() {
-		position = %pos;
-		dataBlock = fireWorkNode;
-		emitter = %type;
-	};
-	%emitter.schedule(%life, "delete");
+function KeppyRamps::getRampZDir(%this, %ramp, %obj) {
+	if(%ramp $= "")
+		return;
+	if(getWord(%obj.position, 2) > getWord(%ramp.position, 2))
+		return "down";
+	else
+		return "up";
 }
 
 function KeppyRamps::platformEffect(%this, %pos) {
 	ServerPlay3D("bounce" @ getRandom(1, 4) @ "Sfx", %pos);
-	TempEmitter(%pos, "LandMineSparkEmitter", 200);
+	spawnEmitter(200, LandMineSparkEmitter, %pos, false);
 }
 
-function KeppyRamps::CreateItem(%this, %square) {
+function KeppyRamps::removePlatform(%this, %obj) {
+	if(isObject(%obj.prev)) {
+		%obj.prev.delete();
+	}
+	
+	if(%obj.connectors) {
+		%obj.connectors.forEach("%this.uncouple");
+		%obj.connectors.delete();
+	}
+		
+	if(isObject(%obj.item)) {
+		%obj.item.delete();
+	}
+
+	if(isObject(%obj.gem)) {
+		%this.gems--;
+		echo("gems:" SPC %this.gems);
+	}
+	
+	if(isObject(%obj.endPad)) {
+		%this.endPad = false;
+		%obj.endPad.delete();
+		LocalClientConnection.player.setPad(false);
+	}
+	
+	%obj.delete();
+	debug("remove: Removed" SPC %obj);
+}
+
+function KeppyRamps::createItem(%this, %square) {
 	debug("Create item:" SPC %square);
 	if(%square.id || %square.num == 0)
 		return;
@@ -306,194 +403,36 @@ function KeppyRamps::CreateItem(%this, %square) {
 	}
 }
 
-function KeppyRamps::EndPad(%this, %square) {
+function KeppyRamps::endPad(%this, %square) { // TODO maybe just do TSStatic for prev?
 	debug("EndPad: Creating end pad");
 	%this.endPad = true;
 	ItemGroup.add(%pad = new StaticShape() {
-		 position = vectorAdd(%square.position, "0 0 0.5");
-		 rotation = "0 0 1 179.518";
-		 dataBlock = "EndPad_MBG";
+		position = vectorAdd(%square.position, "0 0 0.5");
+		rotation = "0 0 1 179.518";
+		dataBlock = "EndPad_MBG";
 	});
 	%square.endPad = %pad;
 }
 
-function KeppyRamps::StartPlatforms(%this) {
-	$KeppyRamps::Create = true;
-	debug("--------Platform creation started--------");
-}
-
-function KeppyRamps::StartRun(%this) {
-	debug("StartRun: starting run");
-	%this.delete();
-	%this = new ScriptObject(RampMatrix) {
-		class = "KeppyRamps";
-	};
-	MissionGroup.add(%this);
-	$KeppyRamps::Create = false;
-	debug("StartRun: Clearing ramp objects");
-	MatrixGroup.forEach("%this.clear");
-	debug("Finished clearing objects");
-	
-	%this.schedule(500, "createPlatform", "0 0 0", 0);
-	
-	
-	CommandToClient(LocalClientConnection, 'SetGemQuota', 20, 10);
-	ClientMode_quota.shouldUpdateGems();
-	%this.schedule(2000, "StartPlatforms");
-}
-
-function clientCbOnRespawn() {
-	RampMatrix.StartRun();
-}
-
-function KeppyRamps::GetRampZDir(%this, %ramp, %obj) {
-	if(%ramp $= "")
-		return;
-	if(getWord(%obj.position, 2) > getWord(%ramp.position, 2))
-		return "down";
-	else
-		return "up";
-}
-
-function KeppyRamps::BuildTrim(%this, %obj) {
-	debug("BuildTrim: Building trim for" SPC %obj);
-	if(%obj.id) {
-		%trim = new InteriorInstance() {
-			position = %obj.position;
-			rotation = "0 0 1" SPC 90 * (%obj.id-1);
-			interiorFile = "platinum/data/interiors_mbg/matrix/trim_ramp.dif";
-		};
-		debug("BuildTrim: Created ramp trim" SPC %trim);
-		TrimGroup.add(%trim);
+function RampConnector::couple(%this) {
+	%diff_conn = RampMatrix.connector[%this.pos];
+	if(%diff_conn){
+		if(%diff_con != %this) {
+			//if(%diff_conn.coupled) {
+			//	%this.platform.explode = %diff_conn.coupled.platform;
+			//}
+			%diff_conn.coupled = %this;
+			%this.coupled = %diff_conn;
+		}
 	}
 	else {
-		for(%i = 0; %i < 4; %i++) {
-			%firstConnector = %obj.connectors.getObject(%i);
-			%next = %next == 3 ? 0 : %i+1;
-			%secondConnector = %obj.connectors.getObject(%next);
-			
-			%rot = "0 0 1" SPC 90 * %i;
-			
-			
-			if(%firstConnector.skip && !%firstConnector.coupled) {
-				%trim = new InteriorInstance() {
-					position = %obj.position;
-					rotation = %rot;
-					interiorFile = "platinum/data/interiors_mbg/matrix/trim.dif";
-				};
-				debug("BuildTrim: Created edge trim" SPC %trim);
-				%firstConnector.trim = %trim;
-				TrimGroup.add(%trim);
-			}
-			
-			%firstDir = %this.GetRampZDir(%firstConnector.coupled.platform, %obj);
-			%secondDir = %this.GetRampZDir(%secondConnector.coupled.platform, %obj);
-			
-			%trim = new InteriorInstance() {
-				position = %obj.position;
-				rotation = %rot;
-				interiorFile = "platinum/data/interiors_mbg/matrix/trim_" @ %firstDir @ "_" @ %secondDir @ ".dif";
-			};
-			debug("BuildTrim: Created corner trim" SPC %trim);
-			TrimGroup.add(%trim);
-		}
+		RampMatrix.connector[%this.pos] = %this;
 	}
-	for(%i = 0; %i < %obj.connectors.getCount(); %i++) {
-		%connector = %obj.connectors.getObject(%i);
-		if(%connector.coupled.trim) {
-			debug("BuildTrim: Deleting some trim");
-			//ServerPlay3D(ExplodeMineSfx, %connector.coupled.trim.getWorldBoxCenter());
-			%connector.coupled.trim.delete();
-			
-			%connector.coupled.trim = "";
-		}
-	}
-	debug("BuildTrim: Built trim");
 }
 
-function KeppyRamps::AddObject(%this, %obj) {
-	debug("AddObject: Adding" SPC %obj);
-	if(!isObject(%obj)) {
-		debug("AddObject: Object was removed");
-		return;
-	}
-	%obj.setScale("1 1 1");
-	%this.platformEffect(%obj.position);
-	if(!%obj.id)
-		%this.squares++;
-
-	//if(%obj.explode) {
-	//	ServerPlay3D(ExplodeMineSfx, %obj.explode.getWorldBoxCenter());
-	//	%this.remove(%obj.explode, 1);
-	//}
-	%this.BuildTrim(%obj);
-
-	if(%obj.item)
-		%obj.item.setFadeVal(1);
-	
-	if(%obj.endPad) {
-		LocalClientConnection.player.setPad(%obj.endPad);
-	}
-	
-	if(%obj.gem)
-		%this.gems++;
-	
-	%obj.prev.delete();
-	%obj.prev = "";
-	debug("AddObject: Added object" SPC %obj);
-}
-
-function InteriorInstance::RampsOnFrameAdvance(%this) {
-	if(!$KeppyRamps::Create) {
-		debug("Frame Advance: Create var is false!");
-	}
-		
-	//%dist = VectorDist($MarblePos, %this.position);
-	%sub = VectorSub(%this.position, $MarblePos);
-	%dist = VectorDot(%sub, %sub);
-	
-	debug("----");
-	debug(PlatformGroup.getCount());
-	debug(%this);
-	debug(%this.position);
-	debug($MarblePos);
-	debug(%dist);
-	
-	if(%dist < 256) {
-		debug("Calling next");
-		//if(RampMatrix.gems < 20)
-			RampMatrix.next(%this);
-	}
-		
-	
-	if(%this.prev) {
-		debug("Has prev");
-		
-		if(%dist < 64) {
-			debug("Calling add object");
-			RampMatrix.AddObject(%this);
-		}
-			
-		
-		if(%dist > 576) {
-			debug("Calling remove object");
-			//if(RampMatrix.gems < 20)
-				RampMatrix.remove(%this);
-		}
-			
-	}
-	debug("End interior frame advance");
-}
-
-function clientCbOnFrameAdvance() {
-	debug("advancing frame");
-	if(!$PlayingDemo && !$Game::Menu && $KeppyRamps::Create) {
-		debug("------------------");
-		$MarblePos = $MP::MyMarble.getPosition();
-		PlatformGroup.forEach("%this.RampsOnFrameAdvance");
-		debug("Finished group call");
-	}
-		
+function RampConnector::uncouple(%this) {
+	%this.coupled.coupled = false;
+	RampMatrix.connector[%this.pos] = %this.coupled;
 }
 
 package RampMatrixRecord {
@@ -508,7 +447,6 @@ package RampMatrixRecord {
 					position = %position;
 					interiorFile = %data;
 				};
-				break;
 			case 1:
 				%obj = new Item() {
 					dataBlock = %data;
@@ -516,12 +454,10 @@ package RampMatrixRecord {
 					static = 1;
 					collideable = 0;
 				};
-				break;
 			case 2:
 				%obj = new StaticShape() {
 					dataBlock = %data;
 				};
-				break;
 		}
 		MissionGroup.add(%obj);
 	}
@@ -534,7 +470,14 @@ package RampMatrixRecord {
 	}
 };
 
+function opposeDir(%dir) {
+	return %dir < 3 ? %dir + 2 : %dir - 2;
+}
 
+function debug(%str) {
+	if($DEBUG)
+		echo(%str);
+}
 
 //RampMatrix.TestBuild(100);
 //RampMatrix.BuildTrim();
