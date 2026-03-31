@@ -1,0 +1,116 @@
+datablock StaticShapeData(skyballData) {
+	shapeFile = "~/data/shapes/Skies/Clear/Clear.dts";
+};
+
+new SimGroup(MissionGroup) {
+  
+	new ScriptObject(MissionInfo) {
+		artist = "Keppy";
+		awesomeHint = "Help an experienced player master your level!";
+		customRadarRule = "0";
+		desc = "";
+		eastereggHint = "Don\'t fill out this field for PQ levels. Easter Eggs are in the other games!";
+		eggHint = "Help the player find the Nest Egg! If you choose to place one, of course.";
+		game = "PlatinumQuest";
+		generalHint = "";
+		level = "1000";
+		music = "Piece by Piece.ogg";
+		name = "gravkeys";
+		radar = "1";
+		startHelpText = "";
+		trivia = "Share some fun trivia about this level!";
+		type = "Custom";
+		ultimateHint = "Help the player beat your level fast!";
+		platinumTime = "";
+		ultimateTime = "";
+	};
+
+	new ActionMap(gravkeyControl);
+
+	new ScriptObject(missionList) {
+		directions = "_" TAB
+			"-1 0 0 25" TAB
+			"0 -1 0 25" TAB
+			"1 0 0 25" TAB
+			"0 1 0 25";
+	};
+
+	new ScriptObject(MissionState) {
+		yaw = 0;
+	};
+
+	new Sky(Sky) {
+		position = "336 136 0";
+		rotation = "1 0 0 0";
+		scale = "1 1 1";
+		visibleDistance = "1000";
+		useSkyTextures = "1";
+		renderBottomTexture = "1";
+		SkySolidColor = "0.600000 0.600000 0.600000 1.000000";
+		materialList = "~/data/skies_pq/Blender3/blender3.dml";
+		windVelocity = "1 0 0";
+		windEffectPrecipitation = "0";
+		noRenderBans = "1";
+	};
+	new Sun() {
+		direction = "0.638261 0.459006 -0.61801";
+		color = "1.400000 1.200000 0.400000 1.000000";
+		ambient = "0.300000 0.300000 0.400000 1.000000";
+	};
+  
+	new Trigger(Spawn) {
+		position = "0 0 0";
+		rotation = "1 0 0 0";
+		scale = "1 1 1";
+		dataBlock = "SpawnTrigger";
+		polyhedron = "0.0000000 0.0000000 0.0000000 1.0000000 0.0000000 0.0000000 0.0000000 -1.0000000 0.0000000 0.0000000 0.0000000 1.0000000";
+		center = "1";
+		gravity = "1";
+	};
+	new InteriorInstance() {
+		position = "0 0 -2";
+		rotation = "1 0 0 0";
+		scale = "1 1 1";
+		interiorFile = "~/data/interiors_mbg/custom/GoldTemplate.dif";
+		showTerrainInside = "0";
+	};
+	new StaticShape(skyball) {
+		scale = "1000 1000 1000";
+		datablock = "skyballData";
+	};
+	new SimGroup(PathNodeGroup) {
+	
+		new StaticShape(CameraPath1) {
+		position = "20 0 7.5";
+		rotation = "0.128171 0.128172 -0.983435 90.9571";
+		scale = "1 1 1";
+		dataBlock = "PathNode";
+			FinalRotOffset = "0 0 0";
+			RotationMultiplier = "1";
+			Smooth = "0";
+			SmoothEnd = "0";
+			SmoothStart = "0";
+			Spline = "0";
+			bezier = "0";
+			branchNodes = " ";
+			delay = "0";
+			nextNode = "CameraPath2";
+			placed = "1";
+			reverseRotation = "0";
+			speed = "0";
+			timeToNext = "4000";
+			usePosition = "1";
+			useRotation = "1";
+			useScale = "1";
+		};
+	};
+};
+
+exec("platinum/server/scripts/keppy/gravkeys.cs");
+createDirectionObjects();
+
+gravkeyControl.bindcmd(keyboard, "w", "holdDirection(1);", "releaseDirection(1);");
+gravkeyControl.bindcmd(keyboard, "a", "holdDirection(2);", "releaseDirection(2);");
+gravkeyControl.bindcmd(keyboard, "s", "holdDirection(3);", "releaseDirection(3);");
+gravkeyControl.bindcmd(keyboard, "d", "holdDirection(4);", "releaseDirection(4);");
+gravkeyControl.bind(mouse, "xaxis", "incYaw");
